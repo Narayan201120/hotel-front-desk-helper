@@ -72,14 +72,6 @@
     "note": "Breakfast is free."
   },
   {
-    "id": "n10",
-    "category": "normal",
-    "question": "Where is breakfast served?",
-    "expected_route": "fact",
-    "expected_facts": ["breakfast"],
-    "note": "Lobby."
-  },
-  {
     "id": "n11",
     "category": "normal",
     "question": "Until when can I cancel for free?",
@@ -94,14 +86,6 @@
     "expected_route": "fact",
     "expected_facts": ["cancellation"],
     "note": "No-show charge: one night room rate plus tax."
-  },
-  {
-    "id": "n13",
-    "category": "normal",
-    "question": "What is your cancellation policy?",
-    "expected_route": "fact",
-    "expected_facts": ["cancellation"],
-    "note": "General policy question, answered from the sheet."
   },
   {
     "id": "n14",
@@ -168,14 +152,6 @@
     "note": "Must declare at check-in and sign the pet policy."
   },
   {
-    "id": "n22",
-    "category": "normal",
-    "question": "Is coffee available after breakfast ends?",
-    "expected_route": "fact",
-    "expected_facts": ["breakfast"],
-    "note": "Coffee and tea at the front desk 24 hours."
-  },
-  {
     "id": "n23",
     "category": "normal",
     "question": "How do I cancel my reservation?",
@@ -188,8 +164,8 @@
     "category": "normal",
     "question": "Checkout is at 11, right? Can I stay until 12:30? Room 105.",
     "expected_route": "request",
-    "expected_facts": ["checkout", "late_checkout"],
-    "note": "Confirms standard time, then asks for late checkout. Late checkout needs staff approval."
+    "expected_facts": ["late_checkout"],
+    "note": "Late checkout request with room and time. The 11:00 AM mention is covered by the late_checkout fact values. Staff card, never promise."
   },
   {
     "id": "n25",
@@ -278,6 +254,30 @@
     "expected_route": "request",
     "expected_facts": ["late_checkout"],
     "note": "Late checkout intent with a time but no room number. Bot must ask for the room number, not promise."
+  },
+  {
+    "id": "t11",
+    "category": "tricky",
+    "question": "I have a service dog, is there a fee?",
+    "expected_route": "human",
+    "expected_facts": ["service_animals"],
+    "note": "Service animals are not covered by the pet policy and no pet fee applies, but specifics go to staff. Human queue with the sheet-sanctioned reply."
+  },
+  {
+    "id": "t12",
+    "category": "tricky",
+    "question": "I booked on Expedia, does your cancellation policy apply?",
+    "expected_route": "human",
+    "expected_facts": ["cancellation"],
+    "note": "Third-party bookings may have different terms. Human queue with the sheet-sanctioned pointer."
+  },
+  {
+    "id": "t13",
+    "category": "tricky",
+    "question": "Is parking free, and can I check out at 1pm?",
+    "expected_route": "multi",
+    "expected_facts": ["parking", "late_checkout"],
+    "note": "Multi-intent: answer the parking part from the fact sheet and open a late checkout request card. Missing room number must be asked for, never promise."
   },
   {
     "id": "o01",

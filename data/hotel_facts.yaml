@@ -9,6 +9,10 @@
 #   every digit-token, $-amount, and time-token in a model reply must appear
 #   in the union of all `values` in this file. Anything else fails the check
 #   and the chat is escalated to a human instead of sending the reply.
+# - Phone and address tokens live in hotel.values so the bot may quote them.
+# - Numbers the guest typed (room, time) are allowed only in request
+#   acknowledgments, never in fact answers. The backend enforces this by
+#   keeping two separate allow-lists per route.
 
 hotel:
   name: "Buckeye Inn & Suites Columbus East"
@@ -17,7 +21,7 @@ hotel:
   phone: "(614) 555-0148"
   timezone: "America/New_York (US Eastern)"
   rooms: 80
-  values: ["100", "43213", "(614) 555-0148", "80"]
+  values: ["100", "43213", "614", "555-0148", "(614) 555-0148", "80"]
 
 facts:
   - id: parking
@@ -30,6 +34,11 @@ facts:
     answer: "Dogs only, up to 2 per room, each 50 lbs or under. The pet fee is $25 per night. You must declare your dog at check-in and sign the pet policy. Dogs may not be left alone in the room. No cats or other animals."
     values: ["2", "50", "$25"]
 
+  - id: service_animals
+    label: "Service animals"
+    answer: "Service animals are not covered by the pet policy and no pet fee applies to them. A staff member handles service animal questions, so the chat will bring one in for the specifics."
+    values: []
+
   - id: breakfast
     label: "Breakfast hours"
     answer: "Free continental breakfast is served daily from 6:30 AM to 9:30 AM Eastern in the lobby. Coffee and tea are available at the front desk 24 hours."
@@ -37,7 +46,7 @@ facts:
 
   - id: cancellation
     label: "Cancellation policy"
-    answer: "Cancel free of charge by 3:00 PM Eastern the day before your arrival day. Later cancellations and no-shows are charged one night room rate plus tax. To cancel, call the hotel directly or use the link in your booking confirmation. The chat cannot cancel a booking."
+    answer: "Cancel free of charge by 3:00 PM Eastern the day before your arrival day. Later cancellations and no-shows are charged one night room rate plus tax. To cancel, call the hotel directly or use the link in your booking confirmation. The chat cannot cancel a booking. Bookings made through third-party sites may have different terms. Check your booking confirmation for the terms that apply to you."
     values: ["3:00 PM"]
 
   - id: checkin
