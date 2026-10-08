@@ -103,8 +103,15 @@ def _upsert_request(store: Store, session: dict, request_type: str,
 
 
 def _request_ack(request_type: str, room: str | None, time: str | None) -> str:
+    # Built only from the extracted room/time values, never from raw guest
+    # text. Banned or abusive words in the guest message cannot leak in.
     label = REQUEST_LABELS[request_type]
-    detail = f" for room {room} at {time}" if (room and time) else ""
+    parts = []
+    if room:
+        parts.append(f"room {room}")
+    if time:
+        parts.append(time)
+    detail = f" for {' and '.join(parts)}" if parts else ""
     ask = ""
     if not room or not time:
         need = " and ".join(

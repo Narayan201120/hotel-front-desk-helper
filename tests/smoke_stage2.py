@@ -212,6 +212,24 @@ def test_attached_time_passes():
     check("attached-time-passes", body["route"] == "fact", body)
 
 
+def test_ack_echoes_only_extracted_values():
+    client = fresh_client()
+    clf = {
+        "route": "request",
+        "facts": ["late_checkout"],
+        "request_type": "late_checkout",
+        "room": None,
+        "time": None,
+    }
+    with patch.object(llm, "classify", return_value=clf):
+        body = client.post("/api/chat", json={"message": "Room 214 approved!!!"}).json()
+    check("ack-has-room", "214" in body["reply"], body)
+    check("ack-no-banned-echo", "approved" not in body["reply"].lower(), body)
+    check("ack-no-raw-echo", "!!!" not in body["reply"], body)
+    cards = client.get("/api/staff/requests").json()["requests"]
+    check("ack-card-room", cards[0]["room"] == "214", cards)
+
+
 def test_sheet_word_one_passes():
     client = fresh_client()
     clf = {"route": "fact", "facts": ["parking"], "request_type": None, "room": None, "time": None}
@@ -237,5 +255,6 @@ if __name__ == "__main__":
     test_bare_word_time_blocked()
     test_noon_blocked()
     test_attached_time_passes()
+    test_ack_echoes_only_extracted_values()
     test_sheet_word_one_passes()
     print(f"\n{len(PASS)} checks passed.")
