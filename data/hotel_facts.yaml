@@ -1,0 +1,71 @@
+# SAMPLE DATA: invented hotel, no real guest data.
+# Every policy below is invented for this demo. Nothing here describes a real hotel.
+#
+# Design notes for the backend (stage 2):
+# - Times always use the form "H:MM AM/PM" followed by "Eastern".
+# - Money always uses the form "$N".
+# - Each fact lists the exact numbers, times, and fees it is allowed to cite
+#   in `values`. The deterministic guardrail (stage 2) works like this:
+#   every digit-token, $-amount, and time-token in a model reply must appear
+#   in the union of all `values` in this file. Anything else fails the check
+#   and the chat is escalated to a human instead of sending the reply.
+
+hotel:
+  name: "Buckeye Inn & Suites Columbus East"
+  kind: "Franchised economy hotel (fictional)"
+  address: "100 Sample Road, Columbus, OH 43213"
+  phone: "(614) 555-0148"
+  timezone: "America/New_York (US Eastern)"
+  rooms: 80
+  values: ["100", "43213", "(614) 555-0148", "80"]
+
+facts:
+  - id: parking
+    label: "Parking"
+    answer: "Self-parking in our on-site lot is free. One vehicle per room is included. There is no valet and you do not need to reserve a spot. Oversized vehicles such as RVs, trailers, and box trucks park in the rear lot under the same free terms."
+    values: []
+
+  - id: pets
+    label: "Pets"
+    answer: "Dogs only, up to 2 per room, each 50 lbs or under. The pet fee is $25 per night. You must declare your dog at check-in and sign the pet policy. Dogs may not be left alone in the room. No cats or other animals."
+    values: ["2", "50", "$25"]
+
+  - id: breakfast
+    label: "Breakfast hours"
+    answer: "Free continental breakfast is served daily from 6:30 AM to 9:30 AM Eastern in the lobby. Coffee and tea are available at the front desk 24 hours."
+    values: ["6:30 AM", "9:30 AM", "24"]
+
+  - id: cancellation
+    label: "Cancellation policy"
+    answer: "Cancel free of charge by 3:00 PM Eastern the day before your arrival day. Later cancellations and no-shows are charged one night room rate plus tax. To cancel, call the hotel directly or use the link in your booking confirmation. The chat cannot cancel a booking."
+    values: ["3:00 PM"]
+
+  - id: checkin
+    label: "Check-in time"
+    answer: "Standard check-in is from 3:00 PM Eastern. The front desk is staffed 24 hours, so you can arrive at any time after 3:00 PM Eastern."
+    values: ["3:00 PM", "24"]
+
+  - id: checkout
+    label: "Check-out time"
+    answer: "Standard check-out is 11:00 AM Eastern."
+    values: ["11:00 AM"]
+
+  - id: late_checkout
+    label: "Late checkout (staff approval required)"
+    answer: "Late checkout is never guaranteed. It depends on occupancy that day, so only a staff member can approve it. Send your room number and requested time in the chat and the front desk will approve or decline it."
+    values: ["11:00 AM"]
+
+  - id: early_checkin
+    label: "Early check-in (staff approval required)"
+    answer: "Early check-in is never guaranteed. It depends on room availability that day, so only a staff member can approve it. Send your name and requested arrival time in the chat and the front desk will approve or decline it."
+    values: ["3:00 PM"]
+
+  - id: wifi
+    label: "WiFi"
+    answer: "WiFi is free throughout the hotel. The network name and password are given at check-in."
+    values: []
+
+  - id: front_desk
+    label: "Front desk hours"
+    answer: "The front desk is staffed 24 hours, every day."
+    values: ["24"]
