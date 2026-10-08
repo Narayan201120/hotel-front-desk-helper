@@ -27,7 +27,8 @@ facts:
   - id: parking
     label: "Parking"
     answer: "Self-parking in our on-site lot is free. One vehicle per room is included. There is no valet and you do not need to reserve a spot. Oversized vehicles such as RVs, trailers, and box trucks park in the rear lot under the same free terms."
-    values: []
+    # "1" covers the sheet's own word "One" ("One vehicle per room").
+    values: ["1"]
 
   - id: pets
     label: "Pets"
@@ -47,7 +48,8 @@ facts:
   - id: cancellation
     label: "Cancellation policy"
     answer: "Cancel free of charge by 3:00 PM Eastern the day before your arrival day. Later cancellations and no-shows are charged one night room rate plus tax. To cancel, call the hotel directly or use the link in your booking confirmation. The chat cannot cancel a booking. Bookings made through third-party sites may have different terms. Check your booking confirmation for the terms that apply to you."
-    values: ["3:00 PM"]
+    # "1" covers the sheet's own word "one" ("one night room rate").
+    values: ["3:00 PM", "1"]
 
   - id: checkin
     label: "Check-in time"

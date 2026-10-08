@@ -156,6 +156,73 @@ def test_multi_intent():
     check("multi-card", len(cards) == 1 and cards[0]["type"] == "late_checkout", cards)
 
 
+def test_word_number_fee_blocked():
+    client = fresh_client()
+    clf = {"route": "fact", "facts": ["pets"], "request_type": None, "room": None, "time": None}
+    with patch.object(llm, "classify", return_value=clf), patch.object(
+        llm, "phrase", return_value="The pet fee is twenty dollars per night."
+    ):
+        body = client.post("/api/chat", json={"message": "How much is the pet fee?"}).json()
+    check("word-fee-blocked", body["route"] == "human", body)
+    blocked = client.get("/api/staff/blocked").json()["blocked"]
+    check("word-fee-logged", blocked[0]["reason"] == "unknown-number-time-fee:twenty", blocked)
+
+
+def test_word_time_passes_when_correct():
+    client = fresh_client()
+    clf = {"route": "fact", "facts": ["checkout"], "request_type": None, "room": None, "time": None}
+    reply = "Standard check-out is eleven AM Eastern."
+    with patch.object(llm, "classify", return_value=clf), patch.object(
+        llm, "phrase", return_value=reply
+    ):
+        body = client.post("/api/chat", json={"message": "What time is checkout?"}).json()
+    check("word-time-passes", body["route"] == "fact" and body["reply"] == reply, body)
+
+
+def test_bare_word_time_blocked():
+    client = fresh_client()
+    clf = {"route": "fact", "facts": ["checkout"], "request_type": None, "room": None, "time": None}
+    with patch.object(llm, "classify", return_value=clf), patch.object(
+        llm, "phrase", return_value="Check-out is at eleven."
+    ):
+        body = client.post("/api/chat", json={"message": "What time is checkout?"}).json()
+    check("bare-word-time-blocked", body["route"] == "human", body)
+
+
+def test_noon_blocked():
+    client = fresh_client()
+    clf = {"route": "fact", "facts": ["breakfast"], "request_type": None, "room": None, "time": None}
+    with patch.object(llm, "classify", return_value=clf), patch.object(
+        llm, "phrase", return_value="Breakfast runs until noon."
+    ):
+        body = client.post("/api/chat", json={"message": "When does breakfast end?"}).json()
+    check("noon-blocked", body["route"] == "human", body)
+    blocked = client.get("/api/staff/blocked").json()["blocked"]
+    check("noon-logged", blocked[0]["reason"] == "unknown-number-time-fee:noon", blocked)
+
+
+def test_attached_time_passes():
+    client = fresh_client()
+    clf = {"route": "fact", "facts": ["checkin"], "request_type": None, "room": None, "time": None}
+    reply = "Check-in is from 3pm Eastern."
+    with patch.object(llm, "classify", return_value=clf), patch.object(
+        llm, "phrase", return_value=reply
+    ):
+        body = client.post("/api/chat", json={"message": "What time is check-in?"}).json()
+    check("attached-time-passes", body["route"] == "fact", body)
+
+
+def test_sheet_word_one_passes():
+    client = fresh_client()
+    clf = {"route": "fact", "facts": ["parking"], "request_type": None, "room": None, "time": None}
+    reply = "One vehicle per room is included, and parking is free."
+    with patch.object(llm, "classify", return_value=clf), patch.object(
+        llm, "phrase", return_value=reply
+    ):
+        body = client.post("/api/chat", json={"message": "Is parking free?"}).json()
+    check("sheet-word-one-passes", body["route"] == "fact", body)
+
+
 if __name__ == "__main__":
     test_model_failure_routes_human()
     test_invented_fee_blocked_and_logged()
@@ -165,4 +232,10 @@ if __name__ == "__main__":
     test_phone_and_address_allowed()
     test_request_creates_card_and_decision_visible()
     test_multi_intent()
+    test_word_number_fee_blocked()
+    test_word_time_passes_when_correct()
+    test_bare_word_time_blocked()
+    test_noon_blocked()
+    test_attached_time_passes()
+    test_sheet_word_one_passes()
     print(f"\n{len(PASS)} checks passed.")
