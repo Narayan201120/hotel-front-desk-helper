@@ -1,4 +1,4 @@
-"""Anthropic API wrapper. Temperature 0. Model name from ANTHROPIC_MODEL.
+"""Google Gemini wrapper. Temperature 0. Model name from GEMINI_MODEL.
 
 Any failure (missing key, missing model name, timeout, bad response)
 raises ModelError. Callers must route the chat to a human on ModelError.
@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 import os
 
-MODEL_TIMEOUT_S = 12.0
+MODEL_TIMEOUT_MS = 12_000
 MAX_TOKENS = 300
 
 CLASSIFY_SYSTEM = (
@@ -49,35 +49,55 @@ class ModelError(Exception):
 
 def _client():
     try:
-        import anthropic
+        from google import genai
+        from google.genai import types
     except ImportError as exc:
-        raise ModelError("anthropic package not installed") from exc
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
-    model = os.environ.get("ANTHROPIC_MODEL")
+        raise ModelError("google-genai package not installed") from exc
+    api_key = os.environ.get("GEMINI_API_KEY")
+    model = os.environ.get("GEMINI_MODEL")
     if not api_key:
-        raise ModelError("missing ANTHROPIC_API_KEY")
+        raise ModelError("missing GEMINI_API_KEY")
     if not model:
-        raise ModelError("missing ANTHROPIC_MODEL")
-    return anthropic.Anthropic(api_key=api_key, timeout=MODEL_TIMEOUT_S), model
+        raise ModelError("missing GEMINI_MODEL")
+    client = genai.Client(
+        api_key=api_key, http_options=types.HttpOptions(timeout=MODEL_TIMEOUT_MS)
+    )
+    return client, model
+
+
+def _generate(client, model: str, system: str, user_text: str) -> str:
+    from google.genai import types
+
+    try:
+        resp = client.models.generate_content(
+            model=model,
+            contents=user_text,
+            config=types.GenerateContentConfig(
+                system_instruction=system,
+                temperature=0,
+                max_output_tokens=MAX_TOKENS,
+            ),
+        )
+        text = (resp.text or "").strip()
+        if not text:
+            raise ModelError("empty model response")
+        return text
+    except ModelError:
+        raise
+    except Exception as exc:
+        raise ModelError(str(exc)) from exc
 
 
 def classify(message: str, catalog: list[dict]) -> dict:
     client, model = _client()
     facts_list = "\n".join(f"- {c['id']}: {c['label']}" for c in catalog)
     try:
-        resp = client.messages.create(
-            model=model,
-            temperature=0,
-            max_tokens=MAX_TOKENS,
-            system=CLASSIFY_SYSTEM,
-            messages=[
-                {
-                    "role": "user",
-                    "content": f"Fact ids:\n{facts_list}\n\nGuest message: {message}",
-                }
-            ],
+        text = _generate(
+            client,
+            model,
+            CLASSIFY_SYSTEM,
+            f"Fact ids:\n{facts_list}\n\nGuest message: {message}",
         )
-        text = resp.content[0].text
         try:
             data = json.loads(text)
         except json.JSONDecodeError:
@@ -108,19 +128,9 @@ def phrase(message: str, fact_texts: list[str]) -> str:
     client, model = _client()
     try:
         joined = "\n\n".join(f"- {t}" for t in fact_texts)
-        resp = client.messages.create(
-            model=model,
-            temperature=0,
-            max_tokens=MAX_TOKENS,
-            system=PHRASE_SYSTEM,
-            messages=[
-                {
-                    "role": "user",
-                    "content": f"Fact texts:\n{joined}\n\nGuest question: {message}",
-                }
-            ],
+        return _generate(
+            client, model, PHRASE_SYSTEM, f"Fact texts:\n{joined}\n\nGuest question: {message}"
         )
-        return resp.content[0].text.strip()
     except ModelError:
         raise
     except Exception as exc:
