@@ -8,13 +8,18 @@ count only in request and multi replies.
 Needs GEMINI_API_KEY and GEMINI_MODEL in the environment.
 
 Usage:
-    py tests/run_eval.py
+    py tests/run_eval.py [--pause-secs N]
 Exit code 1 when anything mismatches.
+
+Free-tier keys rate-limit quickly. Use --pause-secs (e.g. 8) to space
+questions out so the run measures the bot, not the quota.
 """
 from __future__ import annotations
 
+import argparse
 import json
 import sys
+import time
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -29,7 +34,7 @@ from app.store import Store  # noqa: E402
 ROOT = Path(__file__).resolve().parent.parent
 
 
-def run_eval() -> int:
+def run_eval(pause_secs: float = 0.0) -> int:
     questions = json.load(open(ROOT / "tests" / "test_questions.json", encoding="utf-8"))
     sheet = FactSheet()
     sheet_allowed = build_allowed(sheet.all_values_entries())
@@ -38,7 +43,9 @@ def run_eval() -> int:
 
     resolved = staff_req = human_q = invented = 0
     mismatches = []
-    for q in questions:
+    for i, q in enumerate(questions):
+        if pause_secs and i:
+            time.sleep(pause_secs)
         before = len(main.store.blocked)
         try:
             r = client.post("/api/chat", json={"message": q["question"]})
@@ -97,4 +104,7 @@ def run_eval() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(run_eval())
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--pause-secs", type=float, default=0.0)
+    args = parser.parse_args()
+    sys.exit(run_eval(args.pause_secs))
