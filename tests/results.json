@@ -84,6 +84,7 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": null,
       "classifier": {
         "route": "fact",
         "facts": [
@@ -117,6 +118,7 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": null,
       "classifier": {
         "route": "fact",
         "facts": [
@@ -140,7 +142,7 @@
       "actual_facts": [
         "parking"
       ],
-      "reply": "No, there is no valet service.",
+      "reply": "There is no valet service available.",
       "request_id": null,
       "blocked": [],
       "queue_reason": null,
@@ -150,6 +152,7 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": null,
       "classifier": {
         "route": "fact",
         "facts": [
@@ -183,6 +186,7 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": null,
       "classifier": {
         "route": "fact",
         "facts": [
@@ -250,6 +254,7 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": null,
       "classifier": {
         "route": "fact",
         "facts": [
@@ -273,7 +278,7 @@
       "actual_facts": [
         "pets"
       ],
-      "reply": "Yes, you may have up to two dogs in one room, each 50\u202flb or under, with a $25 per night pet fee.",
+      "reply": "Yes, you may have up to two dogs in one room, provided each is 50\u202flb or under.",
       "request_id": null,
       "blocked": [],
       "queue_reason": null,
@@ -283,6 +288,7 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": null,
       "classifier": {
         "route": "fact",
         "facts": [
@@ -316,6 +322,7 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": null,
       "classifier": {
         "route": "fact",
         "facts": [
@@ -339,7 +346,7 @@
       "actual_facts": [
         "breakfast"
       ],
-      "reply": "Yes. A free continental breakfast is served daily from\u202f6:30\u202fAM to\u202f9:30\u202fAM\u202fEastern in the lobby.",
+      "reply": "Free continental breakfast is served daily from 6:30\u202fAM to 9:30\u202fAM Eastern in the lobby.",
       "request_id": null,
       "blocked": [],
       "queue_reason": null,
@@ -349,6 +356,7 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": null,
       "classifier": {
         "route": "fact",
         "facts": [
@@ -372,7 +380,7 @@
       "actual_facts": [
         "cancellation"
       ],
-      "reply": "Cancel free of charge by 3:00\u202fPM Eastern the day before your arrival day.",
+      "reply": "You can cancel free of charge by 3:00\u202fPM Eastern the day before your arrival day.",
       "request_id": null,
       "blocked": [],
       "queue_reason": null,
@@ -382,6 +390,7 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": null,
       "classifier": {
         "route": "fact",
         "facts": [
@@ -405,7 +414,7 @@
       "actual_facts": [
         "cancellation"
       ],
-      "reply": "No\u2011shows are charged one night\u2019s room rate plus tax.",
+      "reply": "No-shows are charged one night room rate plus tax.",
       "request_id": null,
       "blocked": [],
       "queue_reason": null,
@@ -415,6 +424,7 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": null,
       "classifier": {
         "route": "fact",
         "facts": [
@@ -438,7 +448,7 @@
       "actual_facts": [
         "checkin"
       ],
-      "reply": "Standard check-in is from 3:00\u202fPM Eastern. The front desk is staffed 24\u202fhours, so you can arrive at any time after 3:00\u202fPM Eastern.",
+      "reply": "Standard check\u2011in is from 3:00\u202fPM Eastern. The front desk is staffed 24\u202fhours, so you can arrive at any time after 3:00\u202fPM Eastern.",
       "request_id": null,
       "blocked": [],
       "queue_reason": null,
@@ -448,6 +458,7 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": null,
       "classifier": {
         "route": "fact",
         "facts": [
@@ -481,6 +492,7 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": null,
       "classifier": {
         "route": "fact",
         "facts": [
@@ -504,7 +516,7 @@
       "actual_facts": [
         "wifi"
       ],
-      "reply": "Yes, WiFi is free throughout the hotel. The network name and password are given at check-in.",
+      "reply": "Yes, Wi\u2011Fi is free throughout the hotel; the network name and password are provided at check\u2011in.",
       "request_id": null,
       "blocked": [],
       "queue_reason": null,
@@ -514,6 +526,7 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": null,
       "classifier": {
         "route": "fact",
         "facts": [
@@ -537,7 +550,7 @@
       "actual_facts": [
         "front_desk"
       ],
-      "reply": "Yes, the front desk is staffed 24 hours, every day.",
+      "reply": "The front desk is staffed 24 hours, every day.",
       "request_id": null,
       "blocked": [],
       "queue_reason": null,
@@ -547,6 +560,7 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": null,
       "classifier": {
         "route": "fact",
         "facts": [
@@ -571,7 +585,7 @@
         "late_checkout"
       ],
       "reply": "Thanks \u2014 I've sent your late checkout request for room 214 and 1:00 PM to the front desk. They will approve or decline it, and you will see the decision here. I can't promise it in advance.",
-      "request_id": "req_f9857f95",
+      "request_id": "req_f4ea0541",
       "blocked": [],
       "queue_reason": null,
       "unknown_tokens": [],
@@ -603,7 +617,7 @@
         "early_checkin"
       ],
       "reply": "Thanks \u2014 I've sent your early check-in request for 1:00 PM to the front desk. Could you share your room number? They will approve or decline it, and you will see the decision here. I can't promise it in advance.",
-      "request_id": "req_5da61dcf",
+      "request_id": "req_ec063678",
       "blocked": [],
       "queue_reason": null,
       "unknown_tokens": [],
@@ -644,6 +658,7 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": null,
       "classifier": {
         "route": "fact",
         "facts": [
@@ -667,7 +682,7 @@
       "actual_facts": [
         "pets"
       ],
-      "reply": "Yes. You must declare your dog at check\u2011in and sign the pet policy.",
+      "reply": "You must declare your dog at check\u2011in and sign the pet policy.",
       "request_id": null,
       "blocked": [],
       "queue_reason": null,
@@ -677,6 +692,7 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": null,
       "classifier": {
         "route": "fact",
         "facts": [
@@ -737,7 +753,7 @@
         "late_checkout"
       ],
       "reply": "Thanks \u2014 I've sent your late checkout request for room 105 to the front desk. Could you share your requested time? They will approve or decline it, and you will see the decision here. I can't promise it in advance.\n\nOne part of your question needs a person. I've asked a team member to answer that part here.",
-      "request_id": "req_f9d1dbcd",
+      "request_id": "req_239bdf02",
       "blocked": [],
       "queue_reason": "multi-partial",
       "unknown_tokens": [],
@@ -771,7 +787,7 @@
         "early_checkin"
       ],
       "reply": "Thanks \u2014 I've sent your early check-in request for room 330 and 12:00 PM to the front desk. They will approve or decline it, and you will see the decision here. I can't promise it in advance.",
-      "request_id": "req_67b7ae64",
+      "request_id": "req_c8ef417a",
       "blocked": [],
       "queue_reason": null,
       "unknown_tokens": [],
@@ -803,7 +819,7 @@
         "late_checkout"
       ],
       "reply": "Thanks \u2014 I've sent your late checkout request to the front desk. Could you share your room number and requested time? They will approve or decline it, and you will see the decision here. I can't promise it in advance.",
-      "request_id": "req_bb8d0b75",
+      "request_id": "req_255e57f8",
       "blocked": [],
       "queue_reason": null,
       "unknown_tokens": [],
@@ -812,6 +828,7 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": false,
       "classifier": {
         "route": "request",
         "facts": [],
@@ -867,6 +884,7 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": null,
       "classifier": {
         "route": "human",
         "facts": [],
@@ -894,6 +912,7 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": null,
       "classifier": {
         "route": "human",
         "facts": [],
@@ -921,6 +940,7 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": null,
       "classifier": {
         "route": "human",
         "facts": [
@@ -1018,6 +1038,7 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": null,
       "classifier": {
         "route": "human",
         "facts": [],
@@ -1045,6 +1066,7 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": null,
       "classifier": {
         "route": "human",
         "facts": [],
@@ -1066,8 +1088,8 @@
       "actual_facts": [
         "late_checkout"
       ],
-      "reply": "Thanks \u2014 I've sent your late checkout request for 4pm to the front desk. Could you share your room number? They will approve or decline it, and you will see the decision here. I can't promise it in advance.",
-      "request_id": "req_f1aab863",
+      "reply": "Thanks \u2014 I've sent your late checkout request for 4:00 PM to the front desk. Could you share your room number? They will approve or decline it, and you will see the decision here. I can't promise it in advance.",
+      "request_id": "req_d6e10761",
       "blocked": [],
       "queue_reason": null,
       "unknown_tokens": [],
@@ -1076,6 +1098,7 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": false,
       "classifier": {
         "route": "request",
         "facts": [],
@@ -1168,7 +1191,7 @@
         "late_checkout"
       ],
       "reply": "Thanks \u2014 I've sent your late checkout request for 1:00 PM to the front desk. Could you share your room number? They will approve or decline it, and you will see the decision here. I can't promise it in advance.\n\nOne part of your question needs a person. I've asked a team member to answer that part here.",
-      "request_id": "req_dc56df95",
+      "request_id": "req_4d61b705",
       "blocked": [],
       "queue_reason": "multi-partial",
       "unknown_tokens": [],
@@ -1207,6 +1230,7 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": null,
       "classifier": {
         "route": "human",
         "facts": [],
@@ -1234,6 +1258,7 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": null,
       "classifier": {
         "route": "human",
         "facts": [],
@@ -1261,6 +1286,7 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": null,
       "classifier": {
         "route": "human",
         "facts": [],
@@ -1288,6 +1314,7 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": null,
       "classifier": {
         "route": "human",
         "facts": [],
@@ -1315,6 +1342,7 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": null,
       "classifier": {
         "route": "human",
         "facts": [],
