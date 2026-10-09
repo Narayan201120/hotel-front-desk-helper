@@ -40,6 +40,10 @@ NO_PROMISE = (
 )
 
 REQUEST_LABELS = {"late_checkout": "late checkout", "early_checkin": "early check-in"}
+MULTI_PARTIAL = (
+    "One part of your question needs a person. "
+    "I've asked a team member to answer that part here."
+)
 
 
 def _catalog(sheet: FactSheet) -> list[dict]:
@@ -233,6 +237,7 @@ def handle_message(store: Store, sheet: FactSheet, message: str,
 
     if route in ("request", "multi"):
         fact_reply = None
+        partial = False
         if route == "multi" and fact_ids:
             try:
                 fact_reply = llm.phrase(message, [sheet.answer_text(f) for f in fact_ids])
@@ -244,8 +249,17 @@ def handle_message(store: Store, sheet: FactSheet, message: str,
                 ok, reason = check_reply(fact_reply, _sheet_allowed(sheet))
                 if not ok:
                     store.log_blocked(session["id"], fact_reply, reason)
-                    return _human(store, session, f"guardrail:{reason}")
-        return _handle_request(store, sheet, session, message, clf, route, fact_reply, fact_ids)
+                    logger.warning("blocked multi fact part (session=%s, reason=%s)", session["id"], reason)
+                    fact_reply = None
+            # Never silently drop the fact intent: the request card is still
+            # created below, and the reply says a person will cover the rest.
+            partial = not fact_reply
+        result = _handle_request(store, sheet, session, message, clf, route, fact_reply, fact_ids)
+        if partial:
+            result["reply"] = result["reply"] + "\n\n" + MULTI_PARTIAL
+            session["messages"][-1]["text"] = result["reply"]
+            store.queue_human(session, "multi-partial")
+        return result
 
     if "service_animals" in fact_ids:
         reply = sheet.answer_text("service_animals") + " I've asked a team member to follow up here with the specifics."

@@ -325,6 +325,31 @@ def test_non_retryable_fails_fast():
     check("non-retryable-fast", raised and calls["n"] == 1 and slp.call_count == 0, calls)
 
 
+def _multi_partial_case(name, phrase_patch):
+    client = fresh_client()
+    clf = {
+        "route": "multi",
+        "facts": ["parking"],
+        "request_type": "late_checkout",
+        "room": None,
+        "time": "1pm",
+    }
+    with patch.object(llm, "classify", return_value=clf), phrase_patch:
+        body = client.post(
+            "/api/chat",
+            json={"message": "Is parking free, and can I check out at 1pm?"},
+        ).json()
+    check(f"multi-partial-{name}", body["route"] == "multi" and body["request_id"], body)
+    check(f"multi-partial-handoff-{name}", "team member" in body["reply"], body)
+    q = client.get("/api/staff/queue").json()["queue"]
+    check(f"multi-partial-queued-{name}", q and q[-1]["reason"] == "multi-partial", q)
+
+
+def test_multi_partial_queues_human():
+    _multi_partial_case("phrase-fails", patch.object(llm, "phrase", side_effect=llm.ModelError("down")))
+    _multi_partial_case("sentinel", patch.object(llm, "phrase", return_value=llm.MISSING_FACT_SENTINEL))
+
+
 def test_pages_and_facts():
     client = fresh_client()
     g = client.get("/")
@@ -464,6 +489,7 @@ if __name__ == "__main__":
     test_unicode_spaces_pass()
     test_fee_without_price_goes_human()
     test_fee_with_price_answers()
+    test_multi_partial_queues_human()
     test_pages_and_facts()
     test_cap_notice()
     test_reset_demo()
