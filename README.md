@@ -114,3 +114,12 @@ product change was made in response.
 - Staff login before any real deployment.
 - Refresh data/recorded_runs.json whenever the sheet or model changes.
 - Deploy the Render blueprint in render.yaml.
+
+## Screenshots (live deploy)
+
+Guest request, staff card, guest-side decision, and a blocked injection:
+
+![Guest late-checkout request](docs/screenshots/guest-request.png)
+![Staff request card](docs/screenshots/staff-card.png)
+![Guest sees the approval](docs/screenshots/guest-decision.png)
+![Injection answered from the sheet](docs/screenshots/injection-blocked.png)
