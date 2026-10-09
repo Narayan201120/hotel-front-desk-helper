@@ -65,12 +65,6 @@ def _human(store: Store, session: dict, reason: str, reply: str = HUMAN_REPLY,
     }
 
 
-def _cap_notice(exc: Exception) -> str | None:
-    if "cap" in str(exc).lower():
-        return CAP_NOTICE
-    return None
-
-
 def _blocked(store: Store, session: dict, reply: str, reason: str) -> dict:
     store.log_blocked(session["id"], reply, reason)
     logger.warning("blocked reply (session=%s, reason=%s): %r", session["id"], reason, reply)
@@ -174,8 +168,10 @@ def handle_message(store: Store, sheet: FactSheet, message: str,
 
     try:
         clf = llm.classify(message, _catalog(sheet))
-    except llm.ModelError as exc:
-        return _human(store, session, "model-unavailable", notice=_cap_notice(exc))
+    except llm.DailyCapReached:
+        return _human(store, session, "model-unavailable", notice=CAP_NOTICE)
+    except llm.ModelError:
+        return _human(store, session, "model-unavailable")
 
     route = clf.get("route", "human")
     fact_ids = [f for f in clf.get("facts", []) if sheet.get(f)]

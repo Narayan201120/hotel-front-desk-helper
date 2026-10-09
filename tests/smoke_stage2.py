@@ -337,15 +337,24 @@ def test_pages_and_facts():
 
 
 def test_cap_notice():
+    import os
     from unittest.mock import patch as mock_patch
 
     client = fresh_client()
-    with mock_patch.object(llm, "_client", side_effect=llm.ModelError("daily model call cap reached")):
+    with mock_patch.dict(os.environ, {"DAILY_MODEL_CALL_CAP": "0"}), mock_patch.object(
+        llm, "_client", return_value=(object(), "m")
+    ):
         body = client.post("/api/chat", json={"message": "Is parking free?"}).json()
     check("cap-notice", body["route"] == "human" and "Daily model limit" in (body["notice"] or ""), body)
     with mock_patch.object(llm, "_client", side_effect=llm.ModelError("down")):
         body = client.post("/api/chat", json={"message": "Is parking free?"}).json()
     check("no-notice-otherwise", body["notice"] is None, body)
+    try:
+        raise llm.DailyCapReached("x")
+        caught_as_model_error = False
+    except llm.ModelError:
+        caught_as_model_error = True
+    check("cap-is-model-error", caught_as_model_error, '')
 
 
 def test_sheet_word_one_passes():

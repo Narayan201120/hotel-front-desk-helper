@@ -54,6 +54,10 @@ class ModelError(Exception):
     pass
 
 
+class DailyCapReached(ModelError):
+    """Raised when the daily model-call budget is spent. Banner only for this."""
+
+
 def _daily_cap() -> int:
     try:
         return int(os.environ.get("DAILY_MODEL_CALL_CAP", "500"))
@@ -69,7 +73,7 @@ def _check_cap() -> None:
     if _calls["day"] != today:
         _calls.update(day=today, count=0)
     if _calls["count"] >= _daily_cap():
-        raise ModelError("daily model call cap reached")
+        raise DailyCapReached("daily model call cap reached")
     _calls["count"] += 1
 
 
