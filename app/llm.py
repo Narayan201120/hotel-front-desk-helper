@@ -9,9 +9,15 @@ from __future__ import annotations
 import datetime
 import json
 import os
+import random
+import time
 
 MODEL_TIMEOUT_MS = 12_000
 MAX_TOKENS = 300
+# 2 retries on rate limits and server errors, jittered. After that the
+# caller routes to a human. Non-retryable errors fail immediately.
+RETRY_DELAYS = (2.0, 4.0)
+RETRYABLE_CODES = (429, 500, 502, 503, 504)
 
 CLASSIFY_SYSTEM = (
     "You route hotel guest messages. Reply with JSON only, no other text. "
@@ -85,27 +91,49 @@ def _client():
     return client, model
 
 
-def _generate(client, model: str, system: str, user_text: str) -> str:
+def _retryable(exc: Exception) -> bool:
+    if getattr(exc, "code", None) in RETRYABLE_CODES:
+        return True
+    text = str(exc)
+    return (
+        "RESOURCE_EXHAUSTED" in text
+        or "UNAVAILABLE" in text
+        or "overloaded" in text.lower()
+    )
+
+
+def _call_once(client, model: str, system: str, user_text: str) -> str:
     from google.genai import types
 
-    try:
-        resp = client.models.generate_content(
-            model=model,
-            contents=user_text,
-            config=types.GenerateContentConfig(
-                system_instruction=system,
-                temperature=0,
-                max_output_tokens=MAX_TOKENS,
-            ),
-        )
-        text = (resp.text or "").strip()
-        if not text:
-            raise ModelError("empty model response")
-        return text
-    except ModelError:
-        raise
-    except Exception as exc:
-        raise ModelError(str(exc)) from exc
+    resp = client.models.generate_content(
+        model=model,
+        contents=user_text,
+        config=types.GenerateContentConfig(
+            system_instruction=system,
+            temperature=0,
+            max_output_tokens=MAX_TOKENS,
+        ),
+    )
+    text = (resp.text or "").strip()
+    if not text:
+        raise ModelError("empty model response")
+    return text
+
+
+def _generate(client, model: str, system: str, user_text: str) -> str:
+    last: Exception | None = None
+    for attempt in range(1 + len(RETRY_DELAYS)):
+        try:
+            return _call_once(client, model, system, user_text)
+        except ModelError:
+            raise
+        except Exception as exc:  # noqa: BLE001 - mapped to ModelError below
+            last = exc
+            if attempt < len(RETRY_DELAYS) and _retryable(exc):
+                time.sleep(RETRY_DELAYS[attempt] * (0.5 + random.random()))
+            else:
+                break
+    raise ModelError(str(last)) from last
 
 
 def classify(message: str, catalog: list[dict]) -> dict:

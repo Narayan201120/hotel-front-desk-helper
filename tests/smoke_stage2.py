@@ -272,6 +272,59 @@ def test_daily_model_cap():
     llm._calls.update(day=None, count=0)
 
 
+class _FakeStatus(Exception):
+    def __init__(self, code):
+        super().__init__(f"fake status {code}")
+        self.code = code
+
+
+def test_retry_then_success():
+    calls = {"n": 0}
+
+    def flaky(client, model, system, text):
+        calls["n"] += 1
+        if calls["n"] < 3:
+            raise _FakeStatus(429)
+        return "recovered"
+
+    with patch.object(llm, "_call_once", side_effect=flaky), patch("time.sleep") as slp:
+        out = llm._generate(object(), "m", "s", "u")
+    check("retry-success", out == "recovered" and calls["n"] == 3, (out, calls))
+    check("retry-slept-twice", slp.call_count == 2, slp.call_count)
+
+
+def test_retry_exhausted_raises():
+    calls = {"n": 0}
+
+    def always_down(client, model, system, text):
+        calls["n"] += 1
+        raise _FakeStatus(503)
+
+    with patch.object(llm, "_call_once", side_effect=always_down), patch("time.sleep"):
+        try:
+            llm._generate(object(), "m", "s", "u")
+            raised = False
+        except llm.ModelError:
+            raised = True
+    check("retry-exhausted", raised and calls["n"] == 3, calls)
+
+
+def test_non_retryable_fails_fast():
+    calls = {"n": 0}
+
+    def bad_request(client, model, system, text):
+        calls["n"] += 1
+        raise _FakeStatus(400)
+
+    with patch.object(llm, "_call_once", side_effect=bad_request), patch("time.sleep") as slp:
+        try:
+            llm._generate(object(), "m", "s", "u")
+            raised = False
+        except llm.ModelError:
+            raised = True
+    check("non-retryable-fast", raised and calls["n"] == 1 and slp.call_count == 0, calls)
+
+
 def test_sheet_word_one_passes():
     client = fresh_client()
     clf = {"route": "fact", "facts": ["parking"], "request_type": None, "room": None, "time": None}
@@ -301,5 +354,8 @@ if __name__ == "__main__":
     test_message_cap()
     test_rate_limit()
     test_daily_model_cap()
+    test_retry_then_success()
+    test_retry_exhausted_raises()
+    test_non_retryable_fails_fast()
     test_sheet_word_one_passes()
     print(f"\n{len(PASS)} checks passed.")
