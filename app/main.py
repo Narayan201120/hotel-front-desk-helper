@@ -1,7 +1,10 @@
 """FastAPI app: guest chat API plus staff request queue and human queue."""
 from __future__ import annotations
 
-from fastapi import FastAPI, HTTPException
+import os
+import time
+from collections import deque
+from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from app import service
@@ -12,10 +15,39 @@ app = FastAPI(title="Hotel front desk helper")
 store = Store()
 sheet = FactSheet()
 
+# In-memory per-IP rate limit. Single persistent process only: it resets on
+# restart and does not share across workers. See README Assumptions.
+_hits: dict[str, deque] = {}
+
+
+def _rate_limit_per_minute() -> int:
+    try:
+        return int(os.environ.get("RATE_LIMIT_PER_MINUTE", "60"))
+    except ValueError:
+        return 60
+
+
+def _client_ip(request: Request) -> str:
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host if request.client else "unknown"
+
+
+def _check_rate_limit(request: Request) -> None:
+    now = time.time()
+    ip = _client_ip(request)
+    window = _hits.setdefault(ip, deque())
+    while window and window[0] <= now - 60:
+        window.popleft()
+    if len(window) >= _rate_limit_per_minute():
+        raise HTTPException(status_code=429, detail="Too many requests. Try again shortly.")
+    window.append(now)
+
 
 class ChatIn(BaseModel):
     session_id: str | None = None
-    message: str = Field(min_length=1)
+    message: str = Field(min_length=1, max_length=500)
 
 
 class DecisionIn(BaseModel):
@@ -28,7 +60,8 @@ def health() -> dict:
 
 
 @app.post("/api/chat")
-def chat(body: ChatIn) -> dict:
+def chat(body: ChatIn, request: Request) -> dict:
+    _check_rate_limit(request)
     return service.handle_message(store, sheet, body.message, body.session_id)
 
 

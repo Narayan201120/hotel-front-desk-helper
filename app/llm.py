@@ -6,6 +6,7 @@ They must never show an error to the guest and never guess an answer.
 """
 from __future__ import annotations
 
+import datetime
 import json
 import os
 
@@ -45,6 +46,25 @@ MISSING_FACT_SENTINEL = "I do not have that information."
 
 class ModelError(Exception):
     pass
+
+
+def _daily_cap() -> int:
+    try:
+        return int(os.environ.get("DAILY_MODEL_CALL_CAP", "500"))
+    except ValueError:
+        return 500
+
+
+_calls = {"day": None, "count": 0}
+
+
+def _check_cap() -> None:
+    today = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+    if _calls["day"] != today:
+        _calls.update(day=today, count=0)
+    if _calls["count"] >= _daily_cap():
+        raise ModelError("daily model call cap reached")
+    _calls["count"] += 1
 
 
 def _client():
@@ -90,6 +110,7 @@ def _generate(client, model: str, system: str, user_text: str) -> str:
 
 def classify(message: str, catalog: list[dict]) -> dict:
     client, model = _client()
+    _check_cap()
     facts_list = "\n".join(f"- {c['id']}: {c['label']}" for c in catalog)
     try:
         text = _generate(
@@ -126,6 +147,7 @@ def _sanitize(data: dict) -> dict:
 
 def phrase(message: str, fact_texts: list[str]) -> str:
     client, model = _client()
+    _check_cap()
     try:
         joined = "\n\n".join(f"- {t}" for t in fact_texts)
         return _generate(

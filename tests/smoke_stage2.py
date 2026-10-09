@@ -33,6 +33,7 @@ def check(name, cond, extra=""):
 
 def fresh_client():
     main.store = Store()
+    main._hits.clear()
     return TestClient(main.app)
 
 
@@ -230,6 +231,47 @@ def test_ack_echoes_only_extracted_values():
     check("ack-card-room", cards[0]["room"] == "214", cards)
 
 
+def test_message_cap():
+    client = fresh_client()
+    r = client.post("/api/chat", json={"message": "x" * 501})
+    check("message-cap-422", r.status_code == 422, r.status_code)
+    r = client.post("/api/chat", json={"message": "x" * 500})
+    check("message-cap-edge", r.status_code != 422, r.status_code)
+
+
+def test_rate_limit():
+    import os
+    from unittest.mock import patch as mock_patch
+
+    client = fresh_client()
+    clf = {"route": "human", "facts": [], "request_type": None, "room": None, "time": None}
+    with mock_patch.dict(os.environ, {"RATE_LIMIT_PER_MINUTE": "2"}), patch.object(
+        llm, "classify", return_value=clf
+    ):
+        s1 = client.post("/api/chat", json={"message": "hi"}).status_code
+        s2 = client.post("/api/chat", json={"message": "hi"}).status_code
+        s3 = client.post("/api/chat", json={"message": "hi"}).status_code
+    check("rate-limit", (s1, s2, s3) == (200, 200, 429), (s1, s2, s3))
+
+
+def test_daily_model_cap():
+    import os
+    from unittest.mock import patch as mock_patch
+
+    llm._calls.update(day=None, count=0)
+    with mock_patch.dict(os.environ, {"DAILY_MODEL_CALL_CAP": "1"}), patch.object(
+        llm, "_client", return_value=(object(), "m")
+    ), patch.object(llm, "_generate", return_value="ok"):
+        first = llm.phrase("q", ["facts"])
+        try:
+            llm.phrase("q", ["facts"])
+            second_ok = True
+        except llm.ModelError:
+            second_ok = False
+    check("daily-cap", first == "ok" and not second_ok, (first, second_ok))
+    llm._calls.update(day=None, count=0)
+
+
 def test_sheet_word_one_passes():
     client = fresh_client()
     clf = {"route": "fact", "facts": ["parking"], "request_type": None, "room": None, "time": None}
@@ -256,5 +298,8 @@ if __name__ == "__main__":
     test_noon_blocked()
     test_attached_time_passes()
     test_ack_echoes_only_extracted_values()
+    test_message_cap()
+    test_rate_limit()
+    test_daily_model_cap()
     test_sheet_word_one_passes()
     print(f"\n{len(PASS)} checks passed.")
