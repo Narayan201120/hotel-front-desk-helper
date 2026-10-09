@@ -2,13 +2,25 @@ SAMPLE DATA: invented hotel, no real guest data.
 
 # Hotel front desk helper
 
-Placeholder. Full README arrives in stage 5.
+## What it does
+
+A guest chat page plus a staff screen for a fictional 80-room economy
+hotel. The bot handles three routes. Facts (parking, pets, breakfast
+hours, cancellation policy) are answered from one YAML sheet, and the
+reply names the fact it came from. Requests (late checkout, early
+check-in) are never promised: the bot takes room and time, opens a card,
+and the guest sees the staff Approve or Decline. Everything else (money,
+refunds, booking changes, complaints, off-topic) goes to a "needs a
+human" queue with the full chat. A deterministic check runs after every
+model reply: any number, time, or fee not in the sheet blocks the reply
+and escalates instead. With no key configured, the chips replay saved
+eval responses labeled "Recorded run, not live".
 
 ## Run steps
 
 Copy `.env.example` to `.env` and fill in `GROQ_API_KEY` and
-`GROQ_MODEL` before the last step. Then open
-http://127.0.0.1:8000/api/health.
+`GROQ_MODEL` first. Then open http://127.0.0.1:8000 for guests and
+http://127.0.0.1:8000/staff for staff.
 
 PowerShell (5 commands):
 
@@ -30,28 +42,58 @@ cp .env.example .env
 uvicorn app.main:app --reload
 ```
 
-## What it does
+## Model and eval
 
-TODO in stage 5.
+Provider Groq, model openai/gpt-oss-120b, temperature 0, reasoning
+effort low. Test set: 40 questions (22 normal, 13 tricky, 5 off-topic)
+in tests/test_questions.json, scored by tests/run_eval.py against the
+expected values, never the model's own output. Full per-question detail
+in tests/results.json.
 
-## What is cut and why
+## Eval results (2026-10-09, Groq openai/gpt-oss-120b)
 
-TODO in stage 5.
+Resolved as fact 20, request 5, multi 2, human 13. Inconclusive 0.
+Mismatches none. Blocked replies 0. Answers with a fact not in the
+sheet none. Buckets: clean pass 40, blocked-then-verbatim 0,
+degraded ack 0, mismatch 0, inconclusive 0. The guardrail never fired
+on real model output in this run. Every mismatch from earlier runs
+(n05 number echo, n23 "booked" ban, t02 fee-as-request, t13 dropped
+parking part, t07 sentinel under injection framing) was fixed and the
+fixes above re-verified in this run.
 
-## Test results
+## What was cut and why
 
-TODO in stage 4.
+- Phone and voice. The night clerk already answers phones; the demo covers the chat queue only.
+- Property management system integration. No test system exists, and availability stays a human call.
+- Live availability. Late checkout and early check-in depend on occupancy, so only staff decide.
+- Payments, refunds, booking changes. Money needs a human; the bot never states or implies them.
+- Multi-hotel admin. One config file per hotel (data/hotel_facts.yaml).
+- Login. Demo build with a shared store; both pages say so.
+- SMS. The chat page is the only channel.
 
 ## Assumptions
 
-- Stage 2: the store is in-memory, so restarts lose chats, request cards, and the human queue. Fine for a demo, stated here instead of hidden.
-- Request acknowledgments are fixed templates, not model text, so the bot cannot accidentally promise a late checkout or early check-in.
+- The store is in-memory, so restarts lose chats, request cards, and the human queue. Single persistent process only.
+- Request acknowledgments are fixed templates, never model text, so the bot cannot promise anything.
+- Ack room and time are canonicalized in code ("noon" to "12:00 PM") and must already appear in the guest message, or they count as missing.
+- On a fact route, a blocked or empty phrasing falls back to the sheet text verbatim, with the block still logged.
 - Human handoffs are canned, except two sentences taken verbatim from the sheet (service animals, third-party bookings).
-- The number check covers digit tokens, $ amounts, and clock times. Number words ("eleven") can slip past it. The phrase prompt plus temperature 0 are the mitigation.
-- Model provider is Groq. llm.py calls the Groq chat API, with the key from GROQ_API_KEY and the model name from GROQ_MODEL (default openai/gpt-oss-120b). Temperature 0, reasoning effort low. The scored eval ran on openai/gpt-oss-120b. The free tier allows 30 requests and 8,000 tokens per minute and 1,000 requests per day for this model, so eval results apply to that model and budget only.
-- Shared demo: one memory store and no login, so every visitor sees every chat. Both pages warn against entering real personal information.
-- The staff reset button clears chats, request cards, the human queue, the blocked log, and rate-limit counters. It does not reset the daily model-call budget.
+- The number check covers digit tokens, $ amounts, clock times, and number words zero through thousand. Ordinals ("first") are not covered.
+- The free tier allows 30 requests and 8,000 tokens per minute and 1,000 requests per day for this model. Over that, calls fall back to human after retries. Results apply to this model and budget only.
+- Shared demo: one store and no login, so every visitor sees every chat. Both pages warn against real personal information. The staff reset button clears demo data but not the daily model budget.
+
+## Known limits
+
+- The classifier varies between runs (t13 and n23 routed differently across runs). Retries and fallbacks cover it, but exact routing is not deterministic.
+- The banned-word list overreaches by design: "you booked" trips the "booked" ban, as seen on n23 before the verbatim fallback existed.
+- Verbatim fallback answers are sheet text, not conversational phrasing. A guest who asks twice may get a stiffer answer the second time.
+- Staff can resolve queue entries but cannot reply into the guest chat from the screen.
+- Recorded-run mode replays saved answers. Anything off the chips needs a key.
 
 ## Next steps
 
-TODO in stage 5.
+- Let staff reply into queued chats from the staff screen.
+- Persist the store (SQLite) so restarts and multi-worker deploys keep state.
+- Staff login before any real deployment.
+- Refresh data/recorded_runs.json whenever the sheet or model changes.
+- Deploy the Render blueprint in render.yaml.
