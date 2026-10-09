@@ -10,9 +10,14 @@ Run: py tests/smoke_stage2.py
 
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 from unittest.mock import patch
+
+# The suite exercises the live path with a stubbed model. Recorded-mode
+# tests clear this variable explicitly.
+os.environ.setdefault("GROQ_API_KEY", "gsk_smoke_dummy_key")
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
