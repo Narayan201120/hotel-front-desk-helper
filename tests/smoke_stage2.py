@@ -400,6 +400,35 @@ def test_reset_demo():
     check("reset-cleared", (post_q, post_r, post_b) == (0, 0, 0), (post_q, post_r, post_b))
 
 
+def test_fee_without_price_goes_human():
+    client = fresh_client()
+    clf = {
+        "route": "request",
+        "facts": [],
+        "request_type": "late_checkout",
+        "room": None,
+        "time": None,
+    }
+    with patch.object(llm, "classify", return_value=clf):
+        body = client.post(
+            "/api/chat", json={"message": "How much is the late checkout fee?"}
+        ).json()
+    check("late-fee-human", body["route"] == "human" and body["request_id"] is None, body)
+    q = client.get("/api/staff/queue").json()["queue"]
+    check("late-fee-reason", q[-1]["reason"] == "fee-not-in-sheet", q)
+
+
+def test_fee_with_price_answers():
+    client = fresh_client()
+    clf = {"route": "fact", "facts": ["pets"], "request_type": None, "room": None, "time": None}
+    reply = "The pet fee is $25 per night."
+    with patch.object(llm, "classify", return_value=clf), patch.object(
+        llm, "phrase", return_value=reply
+    ):
+        body = client.post("/api/chat", json={"message": "How much is the pet fee per night?"}).json()
+    check("pet-fee-answers", body["route"] == "fact" and "$25" in body["reply"], body)
+
+
 def test_sheet_word_one_passes():
     client = fresh_client()
     clf = {"route": "fact", "facts": ["parking"], "request_type": None, "room": None, "time": None}
@@ -433,6 +462,8 @@ if __name__ == "__main__":
     test_retry_exhausted_raises()
     test_non_retryable_fails_fast()
     test_unicode_spaces_pass()
+    test_fee_without_price_goes_human()
+    test_fee_with_price_answers()
     test_pages_and_facts()
     test_cap_notice()
     test_reset_demo()

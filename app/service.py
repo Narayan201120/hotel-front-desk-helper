@@ -27,6 +27,10 @@ THIRD_PARTY_RE = re.compile(
     r"expedia|booking\.com|hotels\.com|priceline|orbitz|travelocity|kayak|airbnb|third.party",
     re.IGNORECASE,
 )
+FEE_RE = re.compile(
+    r"\b(fee|fees|charge|charges|charged|cost|costs|price|prices|how much)\b",
+    re.IGNORECASE,
+)
 
 HUMAN_REPLY = "Thanks — a team member will reply here shortly. I've passed along our full chat."
 CAP_NOTICE = "Daily model limit reached. The night team will handle all chats until it resets."
@@ -153,6 +157,29 @@ def _handle_request(store: Store, sheet: FactSheet, session: dict, message: str,
     }
 
 
+def _has_money_value(sheet: FactSheet, fact_id: str) -> bool:
+    fact = sheet.get(fact_id)
+    return bool(fact) and any(
+        str(v).strip().startswith("$") for v in fact.get("values", []) or []
+    )
+
+
+def _fee_without_price(sheet: FactSheet, message: str, route: str,
+                       fact_ids: list[str], request_type: str | None) -> bool:
+    # Deterministic rule, checked before routing: a question about a fee,
+    # charge, cost, or price whose topic fact lists no money value goes to
+    # a human, even if the classifier saw a request. The model must never
+    # get the chance to invent the amount.
+    if route == "human" or not FEE_RE.search(message or ""):
+        return False
+    topic_ids = list(fact_ids)
+    if route in ("request", "multi") and request_type in REQUEST_LABELS:
+        topic_ids.append(request_type)
+    if not topic_ids:
+        return False
+    return not any(_has_money_value(sheet, f) for f in topic_ids)
+
+
 def _third_party_sentence(sheet: FactSheet) -> str | None:
     answer = sheet.answer_text("cancellation") or ""
     for sentence in answer.split(". "):
@@ -175,6 +202,9 @@ def handle_message(store: Store, sheet: FactSheet, message: str,
 
     route = clf.get("route", "human")
     fact_ids = [f for f in clf.get("facts", []) if sheet.get(f)]
+
+    if _fee_without_price(sheet, message, route, fact_ids, clf.get("request_type")):
+        return _human(store, session, "fee-not-in-sheet")
 
     if route == "fact":
         if not fact_ids:
