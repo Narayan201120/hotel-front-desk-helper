@@ -6,9 +6,12 @@ import os
 import time
 from collections import deque
 from pathlib import Path
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
+
+load_dotenv()
 
 from app import service
 from app.facts import FactSheet
