@@ -74,8 +74,10 @@ def _human(store: Store, session: dict, reason: str, reply: str = HUMAN_REPLY,
 
 
 def _extract_details(message: str, clf: dict) -> tuple[str | None, str | None]:
-    # Guest-verbatim regex first; classifier values only as fallback, and
-    # only if they canonicalize. Anything unparseable counts as missing.
+    # Candidates come from guest-verbatim regex first, classifier second.
+    # A candidate counts only if its normalized form already appears in the
+    # guest message. Classifier-invented values fail closed to missing.
+    guest_toks = {normalize_token(t) for t in extract_tokens(message or "")}
     room_raw = None
     m = ROOM_RE.search(message or "")
     if m:
@@ -88,7 +90,13 @@ def _extract_details(message: str, clf: dict) -> tuple[str | None, str | None]:
         time_raw = m.group(0)
     elif clf.get("time"):
         time_raw = clf.get("time")
-    return _format_room(room_raw), _format_time(time_raw)
+    room = _format_room(room_raw)
+    if room is not None and normalize_token(room) not in guest_toks:
+        room = None
+    time = _format_time(time_raw)
+    if time is not None and normalize_token(time) not in guest_toks:
+        time = None
+    return room, time
 
 
 def _format_room(raw: str | None) -> str | None:
@@ -161,13 +169,9 @@ def _handle_request(store: Store, sheet: FactSheet, session: dict, message: str,
     room, time = _extract_details(message, clf)
     card = _upsert_request(store, session, request_type, room, time)
     ack = _request_ack(request_type, card["room"], card["time"])
-    # Guest numbers count in acks, plus the code-formatted card values.
-    # Anything else (including classifier-invented numbers) fails closed.
+    # Guest numbers count in acks. Verified card values are guest tokens by
+    # construction, so no extra allowance is needed or given.
     allowed = _sheet_allowed(sheet) | _guest_allowed(message)
-    if card["room"]:
-        allowed |= build_allowed([card["room"]])
-    if card["time"]:
-        allowed |= build_allowed([card["time"]])
     ok, reason = check_reply(ack, allowed)
     if not ok:
         store.log_blocked(session["id"], ack, f"request-ack:{reason}")
