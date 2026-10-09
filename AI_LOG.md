@@ -48,3 +48,12 @@ zero blocks), confirmed by a direct probe returning 429
 RESOURCE_EXHAUSTED, then succeeding after 75 seconds idle.
 Fix: added --pause-secs to tests/run_eval.py and redid the run spaced at
 12 seconds per question.
+
+## 2026-10-09, provider changed from Gemini to Groq
+
+Wrong: the eval could not run on Gemini. The free key's per-minute quota
+tripped after a handful of calls, so two full runs measured the quota
+instead of the bot (37 and 4 fallbacks to human, zero model answers).
+Caught by: the shape of the results, confirmed by direct 429 probes.
+Fix: switched to a Groq key on a fresh account in commit d8c97c5 and
+re-ran the eval there.

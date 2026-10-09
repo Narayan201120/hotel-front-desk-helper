@@ -1,5 +1,5 @@
 # Render Blueprint: single persistent web instance.
-# No secrets here. GEMINI_API_KEY and GEMINI_MODEL are set in the
+# No secrets here. GROQ_API_KEY and GROQ_MODEL are set in the
 # Render dashboard (marked sync: false) and never committed.
 services:
   - type: web
