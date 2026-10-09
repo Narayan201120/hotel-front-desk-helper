@@ -6,7 +6,29 @@ Placeholder. Full README arrives in stage 5.
 
 ## Run steps
 
-TODO in stage 5. Target: run locally in 5 commands.
+Copy `.env.example` to `.env` and fill in `GEMINI_API_KEY` and
+`GEMINI_MODEL` before the last step. Then open
+http://127.0.0.1:8000/api/health.
+
+PowerShell (5 commands):
+
+```
+py -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+Copy-Item .env.example .env
+uvicorn app.main:app --reload
+```
+
+Bash (5 commands):
+
+```
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+uvicorn app.main:app --reload
+```
 
 ## What it does
 
