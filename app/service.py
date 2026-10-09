@@ -74,15 +74,44 @@ def _human(store: Store, session: dict, reason: str, reply: str = HUMAN_REPLY,
 
 
 def _extract_details(message: str, clf: dict) -> tuple[str | None, str | None]:
-    room = clf.get("room")
-    if not room:
-        m = ROOM_RE.search(message or "")
-        room = m.group(1) if m else None
-    time = clf.get("time")
-    if not time:
-        m = TIME_RE.search(message or "")
-        time = m.group(0) if m else None
-    return room, time
+    # Guest-verbatim regex first; classifier values only as fallback, and
+    # only if they canonicalize. Anything unparseable counts as missing.
+    room_raw = None
+    m = ROOM_RE.search(message or "")
+    if m:
+        room_raw = m.group(1)
+    elif clf.get("room"):
+        room_raw = clf.get("room")
+    time_raw = None
+    m = TIME_RE.search(message or "")
+    if m:
+        time_raw = m.group(0)
+    elif clf.get("time"):
+        time_raw = clf.get("time")
+    return _format_room(room_raw), _format_time(time_raw)
+
+
+def _format_room(raw: str | None) -> str | None:
+    room = (raw or "").strip()
+    return room if re.fullmatch(r"\d{1,4}", room) else None
+
+
+def _format_time(raw: str | None) -> str | None:
+    """Canonicalize an extracted time to 'H:MM AM/PM'. None if unparseable."""
+    if not raw:
+        return None
+    t = raw.strip().lower().replace(".", "")
+    if t == "noon":
+        return "12:00 PM"
+    if t == "midnight":
+        return "12:00 AM"
+    m = re.fullmatch(r"(\d{1,2})(?::(\d{2}))?\s*([ap])m", t)
+    if not m:
+        return None
+    hour, minute, suffix = int(m.group(1)), m.group(2) or "00", m.group(3).upper() + "M"
+    if not (1 <= hour <= 12 and minute.isdigit() and int(minute) < 60):
+        return None
+    return f"{hour}:{minute} {suffix}"
 
 
 def _infer_type(message: str, clf_type: str | None) -> str:
@@ -132,7 +161,13 @@ def _handle_request(store: Store, sheet: FactSheet, session: dict, message: str,
     room, time = _extract_details(message, clf)
     card = _upsert_request(store, session, request_type, room, time)
     ack = _request_ack(request_type, card["room"], card["time"])
+    # Guest numbers count in acks, plus the code-formatted card values.
+    # Anything else (including classifier-invented numbers) fails closed.
     allowed = _sheet_allowed(sheet) | _guest_allowed(message)
+    if card["room"]:
+        allowed |= build_allowed([card["room"]])
+    if card["time"]:
+        allowed |= build_allowed([card["time"]])
     ok, reason = check_reply(ack, allowed)
     if not ok:
         store.log_blocked(session["id"], ack, f"request-ack:{reason}")

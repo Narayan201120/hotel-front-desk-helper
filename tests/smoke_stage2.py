@@ -134,7 +134,7 @@ def test_request_creates_card_and_decision_visible():
             "/api/chat", json={"message": "Room 214, late checkout until 1pm please?"}
         ).json()
     check("request-route", body["route"] == "request", body)
-    check("request-ack-echoes", "214" in body["reply"] and "1pm" in body["reply"], body)
+    check("request-ack-echoes", "214" in body["reply"] and "1:00 PM" in body["reply"], body)
     check("request-ack-no-promise", "approved" not in body["reply"].lower(), body)
     cards = client.get("/api/staff/requests").json()["requests"]
     check("request-card", len(cards) == 1 and cards[0]["status"] == "pending", cards)
@@ -235,6 +235,45 @@ def test_attached_time_passes():
     ):
         body = client.post("/api/chat", json={"message": "What time is check-in?"}).json()
     check("attached-time-passes", body["route"] == "fact", body)
+
+
+def test_ack_canonical_time():
+    client = fresh_client()
+    clf = {
+        "route": "request",
+        "facts": ["early_checkin"],
+        "request_type": "early_checkin",
+        "room": None,
+        "time": None,
+    }
+    with patch.object(llm, "classify", return_value=clf):
+        body = client.post(
+            "/api/chat", json={"message": "Early check-in around noon, room 330"}
+        ).json()
+    check("ack-canonical", "room 330" in body["reply"] and "12:00 PM" in body["reply"], body)
+    cards = client.get("/api/staff/requests").json()["requests"]
+    check(
+        "ack-card-matches",
+        cards[0]["room"] == "330" and cards[0]["time"] == "12:00 PM",
+        cards,
+    )
+
+
+def test_clf_invented_room_blocked_from_ack():
+    client = fresh_client()
+    clf = {
+        "route": "request",
+        "facts": ["late_checkout"],
+        "request_type": "late_checkout",
+        "room": "214",
+        "time": "1pm",
+    }
+    with patch.object(llm, "classify", return_value=clf):
+        body = client.post(
+            "/api/chat", json={"message": "I need a late checkout tomorrow"}
+        ).json()
+    check("invented-room-route", body["route"] == "request", body)
+    check("invented-room-not-echoed", "214" not in body["reply"], body)
 
 
 def test_ack_echoes_only_extracted_values():
@@ -530,6 +569,8 @@ if __name__ == "__main__":
     test_noon_blocked()
     test_attached_time_passes()
     test_ack_echoes_only_extracted_values()
+    test_ack_canonical_time()
+    test_clf_invented_room_blocked_from_ack()
     test_message_cap()
     test_rate_limit()
     test_daily_model_cap()
