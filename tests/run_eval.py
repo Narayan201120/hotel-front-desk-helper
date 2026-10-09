@@ -61,8 +61,9 @@ def cause_of(exc: Exception | None) -> str | None:
 
 def ask(client: TestClient, sheet_allowed: set[str], store: Store, q: dict) -> dict:
     before_blocked = len(store.blocked)
-    seen: dict = {"exc": None}
+    seen: dict = {"exc": None, "clf": None}
     real_gen = llm._generate
+    real_classify = llm.classify
 
     def spy(api_client, model, system, text):
         try:
@@ -71,8 +72,15 @@ def ask(client: TestClient, sheet_allowed: set[str], store: Store, q: dict) -> d
             seen["exc"] = e
             raise
 
+    def clf_spy(message, catalog):
+        out = real_classify(message, catalog)
+        seen["clf"] = out
+        return out
+
     try:
-        with patch.object(llm, "_generate", side_effect=spy):
+        with patch.object(llm, "_generate", side_effect=spy), patch.object(
+            llm, "classify", side_effect=clf_spy
+        ):
             r = client.post("/api/chat", json={"message": q["question"]})
         body = r.json()
     except Exception as exc:  # noqa: BLE001 - a crashed question is recorded, not raised
@@ -135,6 +143,9 @@ def ask(client: TestClient, sheet_allowed: set[str], store: Store, q: dict) -> d
         "reran": False,
         "inconclusive": inconclusive,
         "failure_cause": cause,
+        # Eval-only debug: what the classifier returned. Never shown to
+        # guests. Contains routes and fact ids only, never keys.
+        "classifier": seen["clf"],
     }
 
 
@@ -156,10 +167,25 @@ def print_row(rec: dict) -> None:
         print(f"    unknown tokens: {rec['unknown_tokens']}", flush=True)
     if rec["banned_word"]:
         print(f"    banned word: {rec['banned_word']}", flush=True)
+    if rec.get("failure_cause"):
+        print(f"    cause: {rec['failure_cause']}", flush=True)
+    if rec.get("classifier"):
+        c = rec["classifier"]
+        print(f"    clf: route={c.get('route')} facts={c.get('facts')} type={c.get('request_type')} room={c.get('room')} time={c.get('time')}", flush=True)
 
 
-def run_eval(chunk: int, pause_secs: float, chunk_pause_secs: float, out: str) -> int:
-    questions = json.load(open(ROOT / "tests" / "test_questions.json", encoding="utf-8"))
+def run_eval(chunk: int, pause_secs: float, chunk_pause_secs: float, out: str,
+             only: list[str] | None = None, merge: bool = False) -> int:
+    sys.stdout.reconfigure(encoding="utf-8")
+    all_questions = json.load(open(ROOT / "tests" / "test_questions.json", encoding="utf-8"))
+    questions = all_questions
+    if only:
+        wanted = set(only)
+        questions = [q for q in all_questions if q["id"] in wanted]
+        missing = wanted - {q["id"] for q in questions}
+        if missing:
+            print(f"unknown ids: {sorted(missing)}", flush=True)
+            return 2
     sheet = FactSheet()
     sheet_allowed = build_allowed(sheet.all_values_entries())
     main.store = Store()
@@ -188,6 +214,13 @@ def run_eval(chunk: int, pause_secs: float, chunk_pause_secs: float, out: str) -
             by_id[qid] = rec
             print_row(rec)
         records = [by_id[q["id"]] for q in questions]
+
+    if merge:
+        existing = json.load(open(ROOT / out, encoding="utf-8"))
+        merged = {r["id"]: r for r in existing["questions"]}
+        for rec in records:
+            merged[rec["id"]] = rec
+        records = [merged[q["id"]] for q in all_questions]
 
     by_route = {"fact": 0, "request": 0, "multi": 0, "human": 0}
     for r in records:
@@ -238,5 +271,8 @@ if __name__ == "__main__":
     parser.add_argument("--pause-secs", type=float, default=15)
     parser.add_argument("--chunk-pause-secs", type=float, default=60)
     parser.add_argument("--out", default="tests/results.json")
+    parser.add_argument("--only", nargs="*", default=None)
+    parser.add_argument("--merge", action="store_true")
     args = parser.parse_args()
-    sys.exit(run_eval(args.chunk, args.pause_secs, args.chunk_pause_secs, args.out))
+    sys.exit(run_eval(args.chunk, args.pause_secs, args.chunk_pause_secs, args.out,
+                      args.only, args.merge))

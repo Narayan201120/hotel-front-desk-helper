@@ -3,23 +3,20 @@
   "provider": "groq",
   "date": "2026-10-09",
   "summary": {
-    "resolved_as_fact": 16,
+    "resolved_as_fact": 18,
     "resolved_as_request": 6,
     "resolved_as_multi": 2,
-    "resolved_as_human": 16,
-    "blocked_count": 0,
+    "resolved_as_human": 14,
+    "inconclusive_count": 0,
+    "blocked_count": 1,
     "invented_fact_answers": [],
     "mismatches": [
       "n05",
-      "n24",
-      "t02",
-      "t13"
-    ],
-    "inconclusive": [
-      "n07",
       "n23",
-      "t06"
-    ]
+      "n24",
+      "t02"
+    ],
+    "inconclusive": []
   },
   "questions": [
     {
@@ -122,13 +119,28 @@
       "actual_facts": [],
       "reply": "Thanks \u2014 a team member will reply here shortly. I've passed along our full chat.",
       "request_id": null,
-      "blocked": [],
-      "queue_reason": "no-known-fact",
+      "blocked": [
+        {
+          "reason": "unknown-number-time-fee:40",
+          "reply": "Yes, you can bring your 40\u2011pound dog. Dogs up to 50\u202flbs are allowed, up to two per room, with a $25 per night pet fee."
+        }
+      ],
+      "queue_reason": "guardrail:unknown-number-time-fee:40",
       "unknown_tokens": [],
       "banned_word": null,
       "match": false,
-      "reran": true,
-      "inconclusive": false
+      "reran": false,
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "fact",
+        "facts": [
+          "pets"
+        ],
+        "request_type": null,
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "n06",
@@ -160,17 +172,29 @@
       "expected_facts": [
         "pets"
       ],
-      "actual_route": "human",
-      "actual_facts": [],
-      "reply": "Thanks \u2014 a team member will reply here shortly. I've passed along our full chat.",
+      "actual_route": "fact",
+      "actual_facts": [
+        "pets"
+      ],
+      "reply": "Yes, you may have up to two dogs in one room, each 50\u202flb or under, with a $25 per night pet fee.",
       "request_id": null,
       "blocked": [],
-      "queue_reason": "model-unavailable",
+      "queue_reason": null,
       "unknown_tokens": [],
       "banned_word": null,
-      "match": false,
-      "reran": true,
-      "inconclusive": true
+      "match": true,
+      "reran": false,
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "fact",
+        "facts": [
+          "pets"
+        ],
+        "request_type": null,
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "n08",
@@ -449,12 +473,22 @@
       "reply": "Thanks \u2014 a team member will reply here shortly. I've passed along our full chat.",
       "request_id": null,
       "blocked": [],
-      "queue_reason": "model-unavailable",
+      "queue_reason": "route-human",
       "unknown_tokens": [],
       "banned_word": null,
       "match": false,
-      "reran": true,
-      "inconclusive": true
+      "reran": false,
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "human",
+        "facts": [
+          "cancellation"
+        ],
+        "request_type": null,
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "n24",
@@ -605,17 +639,29 @@
       "expected_facts": [
         "pets"
       ],
-      "actual_route": "human",
-      "actual_facts": [],
-      "reply": "Thanks \u2014 a team member will reply here shortly. I've passed along our full chat.",
+      "actual_route": "fact",
+      "actual_facts": [
+        "pets"
+      ],
+      "reply": "Dogs are allowed, up to two per room, each 50\u202flb or under. The pet fee is $25 per night. You must declare your dog at check\u2011in and sign the pet policy. Dogs may not be left alone in the room. No cats or other animals are permitted.",
       "request_id": null,
       "blocked": [],
-      "queue_reason": "model-unavailable",
+      "queue_reason": null,
       "unknown_tokens": [],
       "banned_word": null,
-      "match": false,
-      "reran": true,
-      "inconclusive": true
+      "match": true,
+      "reran": false,
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "fact",
+        "facts": [
+          "pets"
+        ],
+        "request_type": null,
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "t07",
@@ -752,17 +798,28 @@
       ],
       "actual_route": "multi",
       "actual_facts": [
+        "parking",
         "late_checkout"
       ],
       "reply": "Thanks \u2014 I've sent your late checkout request for 1pm to the front desk. Could you share your room number? They will approve or decline it, and you will see the decision here. I can't promise it in advance.",
-      "request_id": "req_a2431ad4",
+      "request_id": "req_8675a3ea",
       "blocked": [],
       "queue_reason": null,
       "unknown_tokens": [],
       "banned_word": null,
-      "match": false,
+      "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "multi",
+        "facts": [
+          "parking"
+        ],
+        "request_type": "late_checkout",
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "o01",
