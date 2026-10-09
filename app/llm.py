@@ -143,13 +143,13 @@ def _generate(client, model: str, system: str, user_text: str) -> str:
 def classify(message: str, catalog: list[dict]) -> dict:
     client, model = _client()
     _check_cap()
-    facts_list = "\n".join(f"- {c['id']}: {c['label']}" for c in catalog)
+    facts_list = "\n".join(f"- {c['id']} ({c['label']}): {c['text']}" for c in catalog)
     try:
         text = _generate(
             client,
             model,
             CLASSIFY_SYSTEM,
-            f"Fact ids:\n{facts_list}\n\nGuest message: {message}",
+            f"Facts:\n{facts_list}\n\nGuest message: {message}",
         )
         try:
             data = json.loads(text)

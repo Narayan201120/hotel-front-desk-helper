@@ -47,7 +47,7 @@ MULTI_PARTIAL = (
 
 
 def _catalog(sheet: FactSheet) -> list[dict]:
-    return [{"id": fid, "label": f["label"]} for fid, f in sheet.facts.items()]
+    return [{"id": fid, "label": f["label"], "text": f["answer"]} for fid, f in sheet.facts.items()]
 
 
 def _sheet_allowed(sheet: FactSheet) -> set[str]:
