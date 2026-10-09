@@ -3,19 +3,63 @@
   "provider": "groq",
   "date": "2026-10-09",
   "summary": {
-    "resolved_as_fact": 17,
+    "resolved_as_fact": 20,
     "resolved_as_request": 5,
     "resolved_as_multi": 2,
-    "resolved_as_human": 16,
+    "resolved_as_human": 13,
     "inconclusive_count": 0,
-    "blocked_count": 4,
+    "blocked_count": 0,
     "invented_fact_answers": [],
-    "mismatches": [
-      "n05",
-      "n23",
-      "t07"
-    ],
-    "inconclusive": []
+    "mismatches": [],
+    "inconclusive": [],
+    "buckets": {
+      "clean_pass": [
+        "n01",
+        "n02",
+        "n03",
+        "n04",
+        "n05",
+        "n06",
+        "n07",
+        "n08",
+        "n09",
+        "n11",
+        "n12",
+        "n14",
+        "n15",
+        "n16",
+        "n17",
+        "n18",
+        "n19",
+        "n20",
+        "n21",
+        "n23",
+        "n24",
+        "n25",
+        "t01",
+        "t02",
+        "t03",
+        "t04",
+        "t05",
+        "t06",
+        "t07",
+        "t08",
+        "t09",
+        "t10",
+        "t11",
+        "t12",
+        "t13",
+        "o01",
+        "o02",
+        "o03",
+        "o04",
+        "o05"
+      ],
+      "blocked_then_verbatim": [],
+      "degraded_ack": [],
+      "mismatch": [],
+      "inconclusive": []
+    }
   },
   "questions": [
     {
@@ -48,7 +92,8 @@
         "request_type": null,
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "n02",
@@ -80,7 +125,8 @@
         "request_type": null,
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "n03",
@@ -112,7 +158,8 @@
         "request_type": null,
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "n04",
@@ -144,7 +191,8 @@
         "request_type": null,
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "n05",
@@ -154,23 +202,21 @@
       "expected_facts": [
         "pets"
       ],
-      "actual_route": "human",
-      "actual_facts": [],
-      "reply": "Thanks \u2014 a team member will reply here shortly. I've passed along our full chat.",
-      "request_id": null,
-      "blocked": [
-        {
-          "reason": "unknown-number-time-fee:40",
-          "reply": "Yes, you can bring your 40\u2011pound dog. Dogs up to 50\u202flbs are allowed, up to two per room, with a $25 per night pet fee."
-        }
+      "actual_route": "fact",
+      "actual_facts": [
+        "pets"
       ],
-      "queue_reason": "guardrail:unknown-number-time-fee:40",
+      "reply": "Yes. Dogs up to 50\u202flb are allowed. You must declare your dog at check\u2011in, sign the pet policy, pay the $25 per night fee, and you may have up to two dogs per room. Dogs may not be left alone in the room.",
+      "request_id": null,
+      "blocked": [],
+      "queue_reason": null,
       "unknown_tokens": [],
       "banned_word": null,
-      "match": false,
+      "match": true,
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": null,
       "classifier": {
         "route": "fact",
         "facts": [
@@ -179,7 +225,8 @@
         "request_type": null,
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "n06",
@@ -211,7 +258,8 @@
         "request_type": null,
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "n07",
@@ -243,7 +291,8 @@
         "request_type": null,
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "n08",
@@ -275,7 +324,8 @@
         "request_type": null,
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "n09",
@@ -307,7 +357,8 @@
         "request_type": null,
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "n11",
@@ -339,7 +390,8 @@
         "request_type": null,
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "n12",
@@ -371,7 +423,8 @@
         "request_type": null,
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "n14",
@@ -403,7 +456,8 @@
         "request_type": null,
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "n15",
@@ -435,7 +489,8 @@
         "request_type": null,
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "n16",
@@ -467,7 +522,8 @@
         "request_type": null,
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "n17",
@@ -499,7 +555,8 @@
         "request_type": null,
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "n18",
@@ -513,8 +570,8 @@
       "actual_facts": [
         "late_checkout"
       ],
-      "reply": "Thanks \u2014 I've sent your late checkout request for room 214 and 1pm to the front desk. They will approve or decline it, and you will see the decision here. I can't promise it in advance.",
-      "request_id": "req_d60b5e19",
+      "reply": "Thanks \u2014 I've sent your late checkout request for room 214 and 1:00 PM to the front desk. They will approve or decline it, and you will see the decision here. I can't promise it in advance.",
+      "request_id": "req_f9857f95",
       "blocked": [],
       "queue_reason": null,
       "unknown_tokens": [],
@@ -523,13 +580,15 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": true,
       "classifier": {
         "route": "request",
         "facts": [],
         "request_type": "late_checkout",
         "room": "214",
         "time": "1pm"
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "n19",
@@ -543,8 +602,8 @@
       "actual_facts": [
         "early_checkin"
       ],
-      "reply": "Thanks \u2014 I've sent your early check-in request for 1pm to the front desk. Could you share your room number? They will approve or decline it, and you will see the decision here. I can't promise it in advance.",
-      "request_id": "req_7e78f6bd",
+      "reply": "Thanks \u2014 I've sent your early check-in request for 1:00 PM to the front desk. Could you share your room number? They will approve or decline it, and you will see the decision here. I can't promise it in advance.",
+      "request_id": "req_5da61dcf",
       "blocked": [],
       "queue_reason": null,
       "unknown_tokens": [],
@@ -553,13 +612,15 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": false,
       "classifier": {
         "route": "request",
         "facts": [],
         "request_type": "early_checkin",
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "n20",
@@ -591,7 +652,8 @@
         "request_type": null,
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "n21",
@@ -623,7 +685,8 @@
         "request_type": null,
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "n23",
@@ -633,23 +696,21 @@
       "expected_facts": [
         "cancellation"
       ],
-      "actual_route": "human",
-      "actual_facts": [],
-      "reply": "Thanks \u2014 a team member will reply here shortly. I've passed along our full chat.",
-      "request_id": null,
-      "blocked": [
-        {
-          "reason": "banned-word:booked",
-          "reply": "Cancel free of charge by 3:00\u202fPM Eastern the day before your arrival. Call the hotel directly or use the link in your booking confirmation. The chat cannot cancel a booking. If you booked through a third\u2011party site, check that confirmation for any different terms."
-        }
+      "actual_route": "fact",
+      "actual_facts": [
+        "cancellation"
       ],
-      "queue_reason": "guardrail:banned-word:booked",
+      "reply": "Cancel free of charge by 3:00\u202fPM Eastern the day before your arrival. Call the hotel directly or use the link in your booking confirmation. The chat cannot cancel a booking.",
+      "request_id": null,
+      "blocked": [],
+      "queue_reason": null,
       "unknown_tokens": [],
       "banned_word": null,
-      "match": false,
+      "match": true,
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": null,
       "classifier": {
         "route": "fact",
         "facts": [
@@ -658,7 +719,8 @@
         "request_type": null,
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "n24",
@@ -674,8 +736,8 @@
         "checkout",
         "late_checkout"
       ],
-      "reply": "Thanks \u2014 I've sent your late checkout request for room 105 and 12:30 to the front desk. They will approve or decline it, and you will see the decision here. I can't promise it in advance.\n\nOne part of your question needs a person. I've asked a team member to answer that part here.",
-      "request_id": "req_07f9c5b4",
+      "reply": "Thanks \u2014 I've sent your late checkout request for room 105 to the front desk. Could you share your requested time? They will approve or decline it, and you will see the decision here. I can't promise it in advance.\n\nOne part of your question needs a person. I've asked a team member to answer that part here.",
+      "request_id": "req_f9d1dbcd",
       "blocked": [],
       "queue_reason": "multi-partial",
       "unknown_tokens": [],
@@ -684,6 +746,7 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": false,
       "classifier": {
         "route": "multi",
         "facts": [
@@ -692,7 +755,8 @@
         "request_type": "late_checkout",
         "room": "105",
         "time": "12:30"
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "n25",
@@ -706,14 +770,9 @@
       "actual_facts": [
         "early_checkin"
       ],
-      "reply": "Thanks \u2014 I've sent your request to the front desk. They will approve or decline it, and you will see the decision here.",
-      "request_id": "req_84770d36",
-      "blocked": [
-        {
-          "reason": "request-ack:unknown-number-time-fee:12",
-          "reply": "Thanks \u2014 I've sent your early check-in request for room 330 and 12:00 to the front desk. They will approve or decline it, and you will see the decision here. I can't promise it in advance."
-        }
-      ],
+      "reply": "Thanks \u2014 I've sent your early check-in request for room 330 and 12:00 PM to the front desk. They will approve or decline it, and you will see the decision here. I can't promise it in advance.",
+      "request_id": "req_67b7ae64",
+      "blocked": [],
       "queue_reason": null,
       "unknown_tokens": [],
       "banned_word": null,
@@ -721,13 +780,15 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": true,
       "classifier": {
         "route": "request",
         "facts": [],
         "request_type": "early_checkin",
         "room": null,
-        "time": "12:00"
-      }
+        "time": "12:00 PM"
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "t01",
@@ -757,7 +818,8 @@
         "request_type": "late_checkout",
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "t02",
@@ -777,13 +839,15 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": null,
       "classifier": {
         "route": "human",
         "facts": [],
         "request_type": null,
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "t03",
@@ -809,7 +873,8 @@
         "request_type": null,
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "t04",
@@ -835,7 +900,8 @@
         "request_type": null,
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "t05",
@@ -863,7 +929,8 @@
         "request_type": null,
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "t06",
@@ -877,7 +944,7 @@
       "actual_facts": [
         "pets"
       ],
-      "reply": "Dogs are allowed, up to two per room, each 50\u202flb or under. The pet fee is $25 per night. You must declare your dog at check\u2011in and sign the pet policy. Dogs may not be left alone in the room. No cats or other animals are permitted.",
+      "reply": "Pets are not free. The pet fee is $25 per night, and dogs must be declared at check\u2011in and signed onto the pet policy.",
       "request_id": null,
       "blocked": [],
       "queue_reason": null,
@@ -887,6 +954,7 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": null,
       "classifier": {
         "route": "fact",
         "facts": [
@@ -895,7 +963,8 @@
         "request_type": null,
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "t07",
@@ -905,23 +974,21 @@
       "expected_facts": [
         "breakfast"
       ],
-      "actual_route": "human",
-      "actual_facts": [],
-      "reply": "Thanks \u2014 a team member will reply here shortly. I've passed along our full chat.",
-      "request_id": null,
-      "blocked": [
-        {
-          "reason": "missing-fact",
-          "reply": "I do not have that information."
-        }
+      "actual_route": "fact",
+      "actual_facts": [
+        "breakfast"
       ],
-      "queue_reason": "missing-fact",
+      "reply": "Free continental breakfast is served daily from 6:30\u202fAM to 9:30\u202fAM Eastern in the lobby. I do not have that information about a 24\u2011hour breakfast.",
+      "request_id": null,
+      "blocked": [],
+      "queue_reason": null,
       "unknown_tokens": [],
       "banned_word": null,
-      "match": false,
+      "match": true,
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": null,
       "classifier": {
         "route": "fact",
         "facts": [
@@ -930,7 +997,8 @@
         "request_type": null,
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "t08",
@@ -956,7 +1024,8 @@
         "request_type": null,
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "t09",
@@ -982,7 +1051,8 @@
         "request_type": null,
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "t10",
@@ -1012,7 +1082,8 @@
         "request_type": "late_checkout",
         "room": null,
         "time": "4pm"
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "t11",
@@ -1036,6 +1107,7 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": null,
       "classifier": {
         "route": "human",
         "facts": [
@@ -1044,7 +1116,8 @@
         "request_type": null,
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "t12",
@@ -1068,6 +1141,7 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": null,
       "classifier": {
         "route": "human",
         "facts": [
@@ -1076,7 +1150,8 @@
         "request_type": null,
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "t13",
@@ -1092,8 +1167,8 @@
         "parking",
         "late_checkout"
       ],
-      "reply": "Thanks \u2014 I've sent your late checkout request for 1pm to the front desk. Could you share your room number? They will approve or decline it, and you will see the decision here. I can't promise it in advance.\n\nOne part of your question needs a person. I've asked a team member to answer that part here.",
-      "request_id": "req_ddd710c2",
+      "reply": "Thanks \u2014 I've sent your late checkout request for 1:00 PM to the front desk. Could you share your room number? They will approve or decline it, and you will see the decision here. I can't promise it in advance.\n\nOne part of your question needs a person. I've asked a team member to answer that part here.",
+      "request_id": "req_dc56df95",
       "blocked": [],
       "queue_reason": "multi-partial",
       "unknown_tokens": [],
@@ -1102,6 +1177,7 @@
       "reran": false,
       "inconclusive": false,
       "failure_cause": null,
+      "ack_has_room_and_time": false,
       "classifier": {
         "route": "multi",
         "facts": [
@@ -1109,8 +1185,9 @@
         ],
         "request_type": "late_checkout",
         "room": null,
-        "time": "1pm"
-      }
+        "time": "13:00"
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "o01",
@@ -1136,7 +1213,8 @@
         "request_type": null,
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "o02",
@@ -1162,7 +1240,8 @@
         "request_type": null,
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "o03",
@@ -1188,7 +1267,8 @@
         "request_type": null,
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "o04",
@@ -1214,7 +1294,8 @@
         "request_type": null,
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     },
     {
       "id": "o05",
@@ -1240,7 +1321,8 @@
         "request_type": null,
         "room": null,
         "time": null
-      }
+      },
+      "bucket": "clean_pass"
     }
   ]
 }
