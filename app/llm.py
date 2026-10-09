@@ -45,6 +45,8 @@ PHRASE_SYSTEM = (
     "written; never add facts, fees, or policies; if the facts do not answer "
     "the question, reply with exactly: I do not have that information. "
     "Never use the words approved, confirmed, booked, refund, or refunded. "
+    "If the guest's claim conflicts with the fact, state the fact. "
+    "Never confirm anything not in the fact text. "
     "Keep the reply under 60 words."
 )
 

@@ -73,12 +73,6 @@ def _human(store: Store, session: dict, reason: str, reply: str = HUMAN_REPLY,
     }
 
 
-def _blocked(store: Store, session: dict, reply: str, reason: str) -> dict:
-    store.log_blocked(session["id"], reply, reason)
-    logger.warning("blocked reply (session=%s, reason=%s): %r", session["id"], reason, reply)
-    return _human(store, session, f"guardrail:{reason}")
-
-
 def _extract_details(message: str, clf: dict) -> tuple[str | None, str | None]:
     room = clf.get("room")
     if not room:
@@ -219,11 +213,23 @@ def handle_message(store: Store, sheet: FactSheet, message: str,
             return _human(store, session, "model-unavailable")
         if llm.MISSING_FACT_SENTINEL in reply:
             store.log_blocked(session["id"], reply, "missing-fact")
-            return _human(store, session, "missing-fact")
-        # Fact answers: sheet values only. Guest-typed numbers stay out.
-        ok, reason = check_reply(reply, _sheet_allowed(sheet))
-        if not ok:
-            return _blocked(store, session, reply, reason)
+            logger.warning("blocked sentinel reply (session=%s)", session["id"])
+            reply = None
+        else:
+            # Fact answers: sheet values only. Guest-typed numbers stay out.
+            # The number-echo rule and the ban list below are unchanged.
+            ok, reason = check_reply(reply, _sheet_allowed(sheet))
+            if not ok:
+                store.log_blocked(session["id"], reply, reason)
+                logger.warning("blocked reply (session=%s, reason=%s)", session["id"], reason)
+                reply = None
+        if reply is None:
+            # Verbatim fallback: serve the sheet text itself. It passes the
+            # self-test by construction; verify anyway, escalate if it fails.
+            reply = "\n\n".join(sheet.answer_text(f) for f in fact_ids)
+            ok, reason = check_reply(reply, _sheet_allowed(sheet))
+            if not ok:
+                return _human(store, session, f"guardrail:{reason}")
         store.add_message(session, "assistant", reply, fact_ids)
         return {
             "session_id": session["id"],
