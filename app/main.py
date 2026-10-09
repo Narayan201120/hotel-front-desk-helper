@@ -146,7 +146,14 @@ def chat_state(session_id: str) -> dict:
 
 @app.get("/api/staff/requests")
 def staff_requests() -> dict:
-    return {"requests": store.open_requests()}
+    cards = []
+    for card in store.open_requests():
+        session = store.sessions.get(card["session_id"], {})
+        guest_message = next(
+            (m["text"] for m in session.get("messages", []) if m["role"] == "guest"), ""
+        )
+        cards.append({**card, "guest_message": guest_message})
+    return {"requests": cards}
 
 
 @app.post("/api/staff/requests/{request_id}/decision")

@@ -589,6 +589,22 @@ def test_key_never_leaks():
     check("key-never-leaks", all(fake not in s for s in surfaces), "")
 
 
+def test_staff_card_shows_guest_message():
+    client = fresh_client()
+    clf = {
+        "route": "request",
+        "facts": ["late_checkout"],
+        "request_type": "late_checkout",
+        "room": "214",
+        "time": "1pm",
+    }
+    with patch.object(llm, "classify", return_value=clf):
+        client.post("/api/chat", json={"message": "Room 214, late checkout until 1pm please?"}).json()
+    cards = client.get("/api/staff/requests").json()["requests"]
+    check("card-guest-message", cards[0]["guest_message"].startswith("Room 214"), cards[0])
+    check("card-ids", "req_" in cards[0]["id"] and "s_" in cards[0]["session_id"], cards[0])
+
+
 def test_sheet_word_one_passes():
     client = fresh_client()
     clf = {"route": "fact", "facts": ["parking"], "request_type": None, "room": None, "time": None}
@@ -633,5 +649,6 @@ if __name__ == "__main__":
     test_reset_demo()
     test_recorded_mode_without_key()
     test_key_never_leaks()
+    test_staff_card_shows_guest_message()
     test_sheet_word_one_passes()
     print(f"\n{len(PASS)} checks passed.")
