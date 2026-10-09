@@ -25,3 +25,26 @@ routes, fact references) and still missed them, because validation only
 checks internal consistency, not coverage of the problem space.
 Fix: commit b8b1285 added the service_animals fact, the third-party
 sentences in the cancellation fact, and tests t11, t12, t13.
+
+## 2026-10-09, greedy number-word suffix regex
+
+Wrong: the first version of the number-word normalizer used a greedy
+`^([A-Z-]+)(AM|PM)?$` split, so the token "eleven AM" (spaces stripped to
+"ELEVENAM") parsed as one unknown word instead of 11 + AM. A correct fact
+answer, "Standard check-out is eleven AM Eastern", was blocked.
+Caught by: the new smoke check `test_word_time_passes_when_correct`, before
+commit. The check failed with reason unknown-number-time-fee:eleven AM.
+Fix: non-greedy prefix split in commit 2c5b290, so a trailing AM/PM splits
+off instead of being swallowed.
+
+## 2026-10-09, first eval run measured quota, not the bot
+
+Wrong: the first full 40-question eval ran questions back to back and hit
+the free key's per-minute quota, so 37 of 40 fell back to human. The
+summary looked like a bot failure. It was not: no reply was blocked and no
+fact was invented, which is the fallback working as designed.
+Caught by: the shape of the result itself (near-total human fallback with
+zero blocks), confirmed by a direct probe returning 429
+RESOURCE_EXHAUSTED, then succeeding after 75 seconds idle.
+Fix: added --pause-secs to tests/run_eval.py and redid the run spaced at
+12 seconds per question.

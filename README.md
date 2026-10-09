@@ -48,6 +48,7 @@ TODO in stage 4.
 - Request acknowledgments are fixed templates, not model text, so the bot cannot accidentally promise a late checkout or early check-in.
 - Human handoffs are canned, except two sentences taken verbatim from the sheet (service animals, third-party bookings).
 - The number check covers digit tokens, $ amounts, and clock times. Number words ("eleven") can slip past it. The phrase prompt plus temperature 0 are the mitigation.
+- Model provider is Google Gemini. llm.py calls the Gemini API through the google-genai SDK, with the key from GEMINI_API_KEY and the model name from GEMINI_MODEL. Temperature 0. This replaced Anthropic during stage 2 review, before any eval ran on it.
 
 ## Next steps
 
