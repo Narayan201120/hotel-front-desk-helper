@@ -105,6 +105,9 @@ def _retryable(exc: Exception) -> bool:
 
 
 def _call_once(client, model: str, system: str, user_text: str) -> str:
+    # reasoning_effort low: gpt-oss supports low/medium/high only, and the
+    # default spends reasoning tokens even on trivial calls (24 observed on
+    # a two-word reply). Low keeps short JSON answers inside max_tokens.
     resp = client.chat.completions.create(
         model=model,
         messages=[
@@ -113,6 +116,7 @@ def _call_once(client, model: str, system: str, user_text: str) -> str:
         ],
         temperature=0,
         max_tokens=MAX_TOKENS,
+        reasoning_effort="low",
     )
     text = (resp.choices[0].message.content or "").strip()
     if not text:

@@ -37,15 +37,43 @@ from app import llm, main  # noqa: E402
 from app.facts import FactSheet  # noqa: E402
 from app.guardrails import BANNED_WORDS, build_allowed, extract_tokens, normalize_token  # noqa: E402
 from app.store import Store  # noqa: E402
+from unittest.mock import patch  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 REQUEST_ROUTES = ("request", "multi")
 
 
+def cause_of(exc: Exception | None) -> str | None:
+    """Classify a model-call failure. Eval-only instrumentation."""
+    if exc is None:
+        return "classify-level (transport ok; likely bad JSON)"
+    code = getattr(exc, "code", getattr(exc, "status_code", None))
+    if code == 429 or "rate_limit" in str(exc).lower():
+        return "429"
+    if "timeout" in type(exc).__name__.lower() or "timed out" in str(exc).lower():
+        return "timeout"
+    if isinstance(exc, llm.ModelError) and "empty" in str(exc).lower():
+        return "empty-output"
+    if isinstance(code, int) and 500 <= code <= 599:
+        return f"5xx ({code})"
+    return f"other: {type(exc).__name__}: {str(exc)[:100]}"
+
+
 def ask(client: TestClient, sheet_allowed: set[str], store: Store, q: dict) -> dict:
     before_blocked = len(store.blocked)
+    seen: dict = {"exc": None}
+    real_gen = llm._generate
+
+    def spy(api_client, model, system, text):
+        try:
+            return real_gen(api_client, model, system, text)
+        except Exception as e:  # noqa: BLE001 - recorded, then re-raised
+            seen["exc"] = e
+            raise
+
     try:
-        r = client.post("/api/chat", json={"message": q["question"]})
+        with patch.object(llm, "_generate", side_effect=spy):
+            r = client.post("/api/chat", json={"message": q["question"]})
         body = r.json()
     except Exception as exc:  # noqa: BLE001 - a crashed question is recorded, not raised
         return {
@@ -63,6 +91,7 @@ def ask(client: TestClient, sheet_allowed: set[str], store: Store, q: dict) -> d
             "match": False,
             "reran": False,
             "inconclusive": False,
+            "failure_cause": "request-failed",
         }
     new_blocks = store.blocked[before_blocked:]
     actual_route = body.get("route")
@@ -84,6 +113,7 @@ def ask(client: TestClient, sheet_allowed: set[str], store: Store, q: dict) -> d
     ]
     banned = BANNED_WORDS.search(body.get("reply", "") or "")
     inconclusive = actual_route == "human" and queue_reason == "model-unavailable"
+    cause = cause_of(seen["exc"]) if inconclusive else None
     route_ok = actual_route == q["expected_route"]
     facts_ok = set(actual_facts) == set(q["expected_facts"])
     bad = (not route_ok) or (not facts_ok) or unknown or banned
@@ -104,6 +134,7 @@ def ask(client: TestClient, sheet_allowed: set[str], store: Store, q: dict) -> d
         "match": (not inconclusive) and not bad,
         "reran": False,
         "inconclusive": inconclusive,
+        "failure_cause": cause,
     }
 
 
@@ -171,7 +202,8 @@ def run_eval(chunk: int, pause_secs: float, chunk_pause_secs: float, out: str) -
         "resolved_as_fact": by_route["fact"],
         "resolved_as_request": by_route["request"],
         "resolved_as_multi": by_route["multi"],
-        "resolved_as_human": by_route["human"],
+        "resolved_as_human": by_route["human"] - len(inconclusive),
+        "inconclusive_count": len(inconclusive),
         "blocked_count": blocked_total,
         "invented_fact_answers": invented,
         "mismatches": mismatches,
@@ -181,11 +213,11 @@ def run_eval(chunk: int, pause_secs: float, chunk_pause_secs: float, out: str) -
     print(f"resolved as fact:    {by_route['fact']}", flush=True)
     print(f"resolved as request: {by_route['request']}", flush=True)
     print(f"resolved as multi:   {by_route['multi']}", flush=True)
-    print(f"resolved as human:   {by_route['human']}", flush=True)
+    print(f"resolved as human:   {by_route['human'] - len(inconclusive)}", flush=True)
     print(f"blocked replies:     {blocked_total}", flush=True)
     print(f"invented facts:      {invented if invented else 'none'}", flush=True)
     print(f"mismatches:          {mismatches if mismatches else 'none'}", flush=True)
-    print(f"inconclusive:        {inconclusive if inconclusive else 'none'}", flush=True)
+    print(f"inconclusive:        {len(inconclusive)} {inconclusive if inconclusive else ''}", flush=True)
 
     result = {
         "model": model,
