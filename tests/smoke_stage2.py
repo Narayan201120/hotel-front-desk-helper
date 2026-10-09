@@ -357,6 +357,37 @@ def test_cap_notice():
     check("cap-is-model-error", caught_as_model_error, '')
 
 
+def test_reset_demo():
+    client = fresh_client()
+    human_clf = {"route": "human", "facts": [], "request_type": None, "room": None, "time": None}
+    with patch.object(llm, "classify", return_value=human_clf):
+        client.post("/api/chat", json={"message": "hi"})
+    req_clf = {
+        "route": "request",
+        "facts": ["late_checkout"],
+        "request_type": "late_checkout",
+        "room": "214",
+        "time": "1pm",
+    }
+    with patch.object(llm, "classify", return_value=req_clf):
+        client.post("/api/chat", json={"message": "Room 214 late checkout 1pm"})
+    fact_clf = {"route": "fact", "facts": ["parking"], "request_type": None, "room": None, "time": None}
+    with patch.object(llm, "classify", return_value=fact_clf), patch.object(
+        llm, "phrase", return_value="Parking costs $40."
+    ):
+        client.post("/api/chat", json={"message": "parking?"})
+    pre_q = len(client.get("/api/staff/queue").json()["queue"])
+    pre_r = len(client.get("/api/staff/requests").json()["requests"])
+    pre_b = len(client.get("/api/staff/blocked").json()["blocked"])
+    check("reset-prefilled", (pre_q, pre_r, pre_b) == (2, 1, 1), (pre_q, pre_r, pre_b))
+    r = client.post("/api/staff/reset")
+    check("reset-ok", r.json() == {"ok": True}, r.json())
+    post_q = len(client.get("/api/staff/queue").json()["queue"])
+    post_r = len(client.get("/api/staff/requests").json()["requests"])
+    post_b = len(client.get("/api/staff/blocked").json()["blocked"])
+    check("reset-cleared", (post_q, post_r, post_b) == (0, 0, 0), (post_q, post_r, post_b))
+
+
 def test_sheet_word_one_passes():
     client = fresh_client()
     clf = {"route": "fact", "facts": ["parking"], "request_type": None, "room": None, "time": None}
@@ -391,5 +422,6 @@ if __name__ == "__main__":
     test_non_retryable_fails_fast()
     test_pages_and_facts()
     test_cap_notice()
+    test_reset_demo()
     test_sheet_word_one_passes()
     print(f"\n{len(PASS)} checks passed.")

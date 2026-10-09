@@ -28,7 +28,8 @@
 <body>
 <h1>Staff screen</h1>
 <p class="note">Demo build: no staff login. Anyone with this link can approve requests.</p>
-<p><a href="/">Back to guest chat</a> <button id="refresh" type="button">Refresh now</button></p>
+<p class="note">Shared demo: chats are visible to all visitors. Don't enter real personal information.</p>
+<p><a href="/">Back to guest chat</a> <button id="refresh" type="button">Refresh now</button> <button id="reset" type="button">Reset demo data</button></p>
 <h2>Requests</h2>
 <div id="requests"></div>
 <h2>Needs a human</h2>
@@ -128,6 +129,11 @@
   }
 
   document.getElementById('refresh').onclick = load;
+  document.getElementById('reset').onclick = function () {
+    if (confirm('Clear all chats, requests, queue entries, and blocked replies?')) {
+      fetch('/api/staff/reset', { method: 'POST' }).then(load);
+    }
+  };
   load();
   setInterval(load, 5000);
 </script>

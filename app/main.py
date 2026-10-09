@@ -127,3 +127,13 @@ def staff_resolve(entry_id: str) -> dict:
 @app.get("/api/staff/blocked")
 def staff_blocked() -> dict:
     return {"blocked": store.blocked}
+
+
+@app.post("/api/staff/reset")
+def staff_reset() -> dict:
+    # Demo only: clears chats, cards, queue, blocked log, and rate counters.
+    # It does not reset the daily model-call budget.
+    global store
+    store = Store()
+    _hits.clear()
+    return {"ok": True}
