@@ -10,9 +10,9 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
-      - key: GEMINI_API_KEY
+      - key: GROQ_API_KEY
         sync: false
-      - key: GEMINI_MODEL
+      - key: GROQ_MODEL
         sync: false
       - key: DAILY_MODEL_CALL_CAP
         value: "500"

@@ -1,8 +1,8 @@
-"""Google Gemini wrapper. Temperature 0. Model name from GEMINI_MODEL.
+"""Groq wrapper. Temperature 0. Model name from GROQ_MODEL.
 
-Any failure (missing key, missing model name, timeout, bad response)
-raises ModelError. Callers must route the chat to a human on ModelError.
-They must never show an error to the guest and never guess an answer.
+Any failure (missing key, timeout, bad response) raises ModelError.
+Callers must route the chat to a human on ModelError. They must never
+show an error to the guest and never guess an answer.
 """
 from __future__ import annotations
 
@@ -12,8 +12,9 @@ import os
 import random
 import time
 
-MODEL_TIMEOUT_MS = 12_000
+MODEL_TIMEOUT_S = 12.0
 MAX_TOKENS = 300
+DEFAULT_MODEL = "openai/gpt-oss-120b"
 # 2 retries on rate limits and server errors, jittered. After that the
 # caller routes to a human. Non-retryable errors fail immediately.
 RETRY_DELAYS = (2.0, 4.0)
@@ -79,46 +80,41 @@ def _check_cap() -> None:
 
 def _client():
     try:
-        from google import genai
-        from google.genai import types
+        from groq import Groq
     except ImportError as exc:
-        raise ModelError("google-genai package not installed") from exc
-    api_key = os.environ.get("GEMINI_API_KEY")
-    model = os.environ.get("GEMINI_MODEL")
+        raise ModelError("groq package not installed") from exc
+    api_key = os.environ.get("GROQ_API_KEY")
     if not api_key:
-        raise ModelError("missing GEMINI_API_KEY")
-    if not model:
-        raise ModelError("missing GEMINI_MODEL")
-    client = genai.Client(
-        api_key=api_key, http_options=types.HttpOptions(timeout=MODEL_TIMEOUT_MS)
-    )
+        raise ModelError("missing GROQ_API_KEY")
+    model = os.environ.get("GROQ_MODEL") or DEFAULT_MODEL
+    client = Groq(api_key=api_key, timeout=MODEL_TIMEOUT_S)
     return client, model
 
 
 def _retryable(exc: Exception) -> bool:
-    if getattr(exc, "code", None) in RETRYABLE_CODES:
+    code = getattr(exc, "code", getattr(exc, "status_code", None))
+    if code in RETRYABLE_CODES:
         return True
     text = str(exc)
     return (
         "RESOURCE_EXHAUSTED" in text
         or "UNAVAILABLE" in text
         or "overloaded" in text.lower()
+        or "rate_limit" in text.lower()
     )
 
 
 def _call_once(client, model: str, system: str, user_text: str) -> str:
-    from google.genai import types
-
-    resp = client.models.generate_content(
+    resp = client.chat.completions.create(
         model=model,
-        contents=user_text,
-        config=types.GenerateContentConfig(
-            system_instruction=system,
-            temperature=0,
-            max_output_tokens=MAX_TOKENS,
-        ),
+        messages=[
+            {"role": "system", "content": system},
+            {"role": "user", "content": user_text},
+        ],
+        temperature=0,
+        max_tokens=MAX_TOKENS,
     )
-    text = (resp.text or "").strip()
+    text = (resp.choices[0].message.content or "").strip()
     if not text:
         raise ModelError("empty model response")
     return text
