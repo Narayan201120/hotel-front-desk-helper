@@ -61,6 +61,16 @@ on real model output in this run. Every mismatch from earlier runs
 parking part, t07 sentinel under injection framing) was fixed and the
 fixes above re-verified in this run.
 
+## Held-out check (2026-10-09, same model)
+
+10 new questions written before running (tests/heldout_questions.json),
+scored the same way, detail in tests/heldout_results.json. 8 of 10 match
+(fact 3, request 1, multi 1, human 5, inconclusive 0, invented 0).
+Misses: h02 (the classifier sent the over-limit dog to a human instead of
+answering no from the sheet), h04 (the fee rule fired on the word
+"charge" in "free of charge" and escalated an answerable question). No
+product change was made in response.
+
 ## What was cut and why
 
 - Phone and voice. The night clerk already answers phones; the demo covers the chat queue only.
@@ -87,6 +97,8 @@ fixes above re-verified in this run.
 - The classifier varies between runs (t13 and n23 routed differently across runs). Retries and fallbacks cover it, but exact routing is not deterministic.
 - The banned-word list overreaches by design: "you booked" trips the "booked" ban, as seen on n23 before the verbatim fallback existed.
 - Verbatim fallback answers are sheet text, not conversational phrasing. A guest who asks twice may get a stiffer answer the second time.
+- Held-out h02: the classifier routes "no" answers to a human even when it cites the right fact.
+- Held-out h04: the fee rule matches the word "charge" inside "free of charge", escalating questions the sheet could answer. Kept as ordered.
 - Staff can resolve queue entries but cannot reply into the guest chat from the screen.
 - Recorded-run mode replays saved answers. Anything off the chips needs a key.
 

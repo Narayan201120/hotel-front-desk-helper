@@ -181,9 +181,10 @@ def print_row(rec: dict) -> None:
 
 
 def run_eval(chunk: int, pause_secs: float, chunk_pause_secs: float, out: str,
-             only: list[str] | None = None, merge: bool = False) -> int:
+             only: list[str] | None = None, merge: bool = False,
+             questions_file: str = "tests/test_questions.json") -> int:
     sys.stdout.reconfigure(encoding="utf-8")
-    all_questions = json.load(open(ROOT / "tests" / "test_questions.json", encoding="utf-8"))
+    all_questions = json.load(open(ROOT / questions_file, encoding="utf-8"))
     questions = all_questions
     if only:
         wanted = set(only)
@@ -306,6 +307,7 @@ if __name__ == "__main__":
     parser.add_argument("--out", default="tests/results.json")
     parser.add_argument("--only", nargs="*", default=None)
     parser.add_argument("--merge", action="store_true")
+    parser.add_argument("--questions", default="tests/test_questions.json")
     args = parser.parse_args()
     sys.exit(run_eval(args.chunk, args.pause_secs, args.chunk_pause_secs, args.out,
-                      args.only, args.merge))
+                      args.only, args.merge, args.questions))
