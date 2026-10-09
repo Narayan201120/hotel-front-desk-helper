@@ -605,6 +605,28 @@ def test_staff_card_shows_guest_message():
     check("card-ids", "req_" in cards[0]["id"] and "s_" in cards[0]["session_id"], cards[0])
 
 
+def test_nokey_request_creates_card():
+    import os
+    from unittest.mock import patch as mock_patch
+
+    client = fresh_client()
+    with mock_patch.dict(os.environ, {}, clear=True):
+        body = client.post(
+            "/api/chat",
+            json={"message": "Room 214, can I have a late checkout until 1pm please?"},
+        ).json()
+    check("nokey-request", body["route"] == "request" and body["request_id"], body)
+    check("nokey-request-echo", "room 214" in body["reply"] and "1:00 PM" in body["reply"], body)
+    cards = client.get("/api/staff/requests").json()["requests"]
+    check("nokey-card", len(cards) == 1 and cards[0]["room"] == "214", cards)
+    client.post(
+        "/api/staff/requests/" + cards[0]["id"] + "/decision", json={"decision": "approved"}
+    )
+    state = client.get("/api/chat/" + body["session_id"]).json()
+    staff_msgs = [m for m in state["messages"] if m["role"] == "staff"]
+    check("nokey-decision-visible", any("approved" in m["text"] for m in staff_msgs), state)
+
+
 def test_sheet_word_one_passes():
     client = fresh_client()
     clf = {"route": "fact", "facts": ["parking"], "request_type": None, "room": None, "time": None}
@@ -648,6 +670,7 @@ if __name__ == "__main__":
     test_cap_notice()
     test_reset_demo()
     test_recorded_mode_without_key()
+    test_nokey_request_creates_card()
     test_key_never_leaks()
     test_staff_card_shows_guest_message()
     test_sheet_word_one_passes()

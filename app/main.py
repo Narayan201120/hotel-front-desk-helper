@@ -106,11 +106,29 @@ def recorded() -> dict:
 
 
 def _recorded_reply(session_id: str | None, message: str) -> dict:
-    # No key configured: chips replay saved eval responses, labeled as
-    # replays, and free text gets a canned pointer. Nothing is queued.
+    # No key configured. Fact chips replay saved eval responses. Request
+    # chips take the real card path: room and time come from code
+    # extraction only (no classifier), the ack is the fixed template, and
+    # staff Approve/Decline updates the guest page as usual. Free text gets
+    # a canned pointer. Nothing here is queued for a human.
     session = store.get_session(session_id)
     store.add_message(session, "guest", message)
     hit = _recorded().get((message or "").strip())
+    if hit and hit.get("route") in ("request", "multi"):
+        request_type = service._infer_type(message, None)
+        room, req_time = service._extract_details(message, {})
+        card = store.create_request(session["id"], request_type, room, req_time)
+        reply = service._request_ack(request_type, room, req_time)
+        store.add_message(session, "assistant", reply, [request_type])
+        return {
+            "session_id": session["id"],
+            "route": hit["route"],
+            "reply": reply,
+            "facts_cited": [request_type],
+            "request_id": card["id"],
+            "request_status": card["status"],
+            "notice": None,
+        }
     if hit:
         reply, facts = hit["reply"], hit.get("facts_cited", [])
     else:
