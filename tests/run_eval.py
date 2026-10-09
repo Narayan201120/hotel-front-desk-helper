@@ -100,6 +100,7 @@ def ask(client: TestClient, sheet_allowed: set[str], store: Store, q: dict) -> d
             "reran": False,
             "inconclusive": False,
             "failure_cause": "request-failed",
+            "ack_has_room_and_time": None,
         }
     new_blocks = store.blocked[before_blocked:]
     actual_route = body.get("route")
@@ -122,6 +123,10 @@ def ask(client: TestClient, sheet_allowed: set[str], store: Store, q: dict) -> d
     banned = BANNED_WORDS.search(body.get("reply", "") or "")
     inconclusive = actual_route == "human" and queue_reason == "model-unavailable"
     cause = cause_of(seen["exc"]) if inconclusive else None
+    ack_ok = None
+    if actual_route in REQUEST_ROUTES and body.get("request_id"):
+        card = store.get_request(body["request_id"])
+        ack_ok = bool(card and card.get("room") and card.get("time"))
     route_ok = actual_route == q["expected_route"]
     facts_ok = set(actual_facts) == set(q["expected_facts"])
     bad = (not route_ok) or (not facts_ok) or unknown or banned
@@ -143,6 +148,7 @@ def ask(client: TestClient, sheet_allowed: set[str], store: Store, q: dict) -> d
         "reran": False,
         "inconclusive": inconclusive,
         "failure_cause": cause,
+        "ack_has_room_and_time": ack_ok,
         # Eval-only debug: what the classifier returned. Never shown to
         # guests. Contains routes and fact ids only, never keys.
         "classifier": seen["clf"],
@@ -230,6 +236,30 @@ def run_eval(chunk: int, pause_secs: float, chunk_pause_secs: float, out: str,
     invented = [r["id"] for r in records if r["unknown_tokens"] or r["banned_word"]]
     mismatches = [r["id"] for r in records if not r["match"] and not r["inconclusive"]]
     inconclusive = [r["id"] for r in records if r["inconclusive"]]
+    buckets = {
+        "clean_pass": [],
+        "blocked_then_verbatim": [],
+        "degraded_ack": [],
+        "mismatch": [],
+        "inconclusive": [],
+    }
+    for r in records:
+        if r["inconclusive"]:
+            buckets["inconclusive"].append(r["id"])
+            r["bucket"] = "inconclusive"
+        elif not r["match"]:
+            buckets["mismatch"].append(r["id"])
+            r["bucket"] = "mismatch"
+        elif not r["blocked"]:
+            buckets["clean_pass"].append(r["id"])
+            r["bucket"] = "clean_pass"
+        elif r["actual_route"] == "fact":
+            buckets["blocked_then_verbatim"].append(r["id"])
+            r["bucket"] = "blocked_then_verbatim"
+        else:
+            buckets["degraded_ack"].append(r["id"])
+            r["bucket"] = "degraded_ack"
+    assert sum(len(v) for v in buckets.values()) == len(records), "buckets must cover every question"
 
     summary = {
         "resolved_as_fact": by_route["fact"],
@@ -241,6 +271,7 @@ def run_eval(chunk: int, pause_secs: float, chunk_pause_secs: float, out: str,
         "invented_fact_answers": invented,
         "mismatches": mismatches,
         "inconclusive": inconclusive,
+        "buckets": buckets,
     }
     print("\n--- summary ---", flush=True)
     print(f"resolved as fact:    {by_route['fact']}", flush=True)
@@ -250,6 +281,8 @@ def run_eval(chunk: int, pause_secs: float, chunk_pause_secs: float, out: str,
     print(f"blocked replies:     {blocked_total}", flush=True)
     print(f"invented facts:      {invented if invented else 'none'}", flush=True)
     print(f"mismatches:          {mismatches if mismatches else 'none'}", flush=True)
+    for name in ("clean_pass", "blocked_then_verbatim", "degraded_ack", "mismatch", "inconclusive"):
+        print(f"bucket {name}: {len(buckets[name])} {buckets[name]}", flush=True)
     print(f"inconclusive:        {len(inconclusive)} {inconclusive if inconclusive else ''}", flush=True)
 
     result = {
