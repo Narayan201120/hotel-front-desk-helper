@@ -357,6 +357,18 @@ def test_cap_notice():
     check("cap-is-model-error", caught_as_model_error, '')
 
 
+def test_unicode_spaces_pass():
+    client = fresh_client()
+    clf = {"route": "fact", "facts": ["breakfast"], "request_type": None, "room": None, "time": None}
+    # Narrow no-break space (U+202F) and no-break space (U+00A0), as models emit them.
+    reply = "Breakfast is served from 6:30\u202fAM to 9:30\xa0AM Eastern."
+    with patch.object(llm, "classify", return_value=clf), patch.object(
+        llm, "phrase", return_value=reply
+    ):
+        body = client.post("/api/chat", json={"message": "What time is breakfast?"}).json()
+    check("unicode-spaces-pass", body["route"] == "fact", body)
+
+
 def test_reset_demo():
     client = fresh_client()
     human_clf = {"route": "human", "facts": [], "request_type": None, "room": None, "time": None}
@@ -420,6 +432,7 @@ if __name__ == "__main__":
     test_retry_then_success()
     test_retry_exhausted_raises()
     test_non_retryable_fails_fast()
+    test_unicode_spaces_pass()
     test_pages_and_facts()
     test_cap_notice()
     test_reset_demo()

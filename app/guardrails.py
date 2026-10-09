@@ -60,7 +60,10 @@ def _word_value(words: list[str]) -> int | None:
 
 
 def normalize_token(token: str) -> str:
-    t = token.upper().replace(" ", "").replace(",", "").replace(".", "")
+    # Strip ALL unicode whitespace (regular spaces, no-break spaces U+00A0,
+    # narrow no-break spaces U+202F, ...). Models emit these interchangeably
+    # in times like "6:30 AM", and a literal " " replace misses them.
+    t = re.sub(r"\s+", "", token.upper().replace(",", "").replace(".", ""))
     if t == "NOON":
         return "12PM"
     if t == "MIDNIGHT":
