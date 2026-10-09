@@ -4,7 +4,9 @@ from __future__ import annotations
 import os
 import time
 from collections import deque
+from pathlib import Path
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
 from app import service
@@ -14,6 +16,7 @@ from app.store import Store
 app = FastAPI(title="Hotel front desk helper")
 store = Store()
 sheet = FactSheet()
+STATIC = Path(__file__).parent / "static"
 
 # In-memory per-IP rate limit. Single persistent process only: it resets on
 # restart and does not share across workers. See README Assumptions.
@@ -57,6 +60,21 @@ class DecisionIn(BaseModel):
 @app.get("/api/health")
 def health() -> dict:
     return {"ok": True}
+
+
+@app.get("/")
+def guest_page() -> FileResponse:
+    return FileResponse(STATIC / "guest.html")
+
+
+@app.get("/staff")
+def staff_page() -> FileResponse:
+    return FileResponse(STATIC / "staff.html")
+
+
+@app.get("/api/facts")
+def fact_labels() -> dict:
+    return {"facts": [{"id": fid, "label": f["label"]} for fid, f in sheet.facts.items()]}
 
 
 @app.post("/api/chat")

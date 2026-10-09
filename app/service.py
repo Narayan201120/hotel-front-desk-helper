@@ -29,6 +29,7 @@ THIRD_PARTY_RE = re.compile(
 )
 
 HUMAN_REPLY = "Thanks — a team member will reply here shortly. I've passed along our full chat."
+CAP_NOTICE = "Daily model limit reached. The night team will handle all chats until it resets."
 NO_PROMISE = (
     "They will approve or decline it, and you will see the decision here. "
     "I can't promise it in advance."
@@ -50,7 +51,7 @@ def _guest_allowed(message: str) -> set[str]:
 
 
 def _human(store: Store, session: dict, reason: str, reply: str = HUMAN_REPLY,
-           facts_cited: list[str] | None = None) -> dict:
+           facts_cited: list[str] | None = None, notice: str | None = None) -> dict:
     store.add_message(session, "assistant", reply, facts_cited or [])
     store.queue_human(session, reason)
     return {
@@ -60,7 +61,14 @@ def _human(store: Store, session: dict, reason: str, reply: str = HUMAN_REPLY,
         "facts_cited": facts_cited or [],
         "request_id": None,
         "request_status": None,
+        "notice": notice,
     }
+
+
+def _cap_notice(exc: Exception) -> str | None:
+    if "cap" in str(exc).lower():
+        return CAP_NOTICE
+    return None
 
 
 def _blocked(store: Store, session: dict, reply: str, reason: str) -> dict:
@@ -147,6 +155,7 @@ def _handle_request(store: Store, sheet: FactSheet, session: dict, message: str,
         "facts_cited": cited,
         "request_id": card["id"],
         "request_status": card["status"],
+        "notice": None,
     }
 
 
@@ -165,8 +174,8 @@ def handle_message(store: Store, sheet: FactSheet, message: str,
 
     try:
         clf = llm.classify(message, _catalog(sheet))
-    except llm.ModelError:
-        return _human(store, session, "model-unavailable")
+    except llm.ModelError as exc:
+        return _human(store, session, "model-unavailable", notice=_cap_notice(exc))
 
     route = clf.get("route", "human")
     fact_ids = [f for f in clf.get("facts", []) if sheet.get(f)]
@@ -193,6 +202,7 @@ def handle_message(store: Store, sheet: FactSheet, message: str,
             "facts_cited": fact_ids,
             "request_id": None,
             "request_status": None,
+            "notice": None,
         }
 
     if route in ("request", "multi"):

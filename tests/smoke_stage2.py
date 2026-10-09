@@ -325,6 +325,29 @@ def test_non_retryable_fails_fast():
     check("non-retryable-fast", raised and calls["n"] == 1 and slp.call_count == 0, calls)
 
 
+def test_pages_and_facts():
+    client = fresh_client()
+    g = client.get("/")
+    check("guest-page", g.status_code == 200 and "SAMPLE DATA, invented" in g.text, g.status_code)
+    check("guest-staff-link", '/staff' in g.text, '')
+    s = client.get("/staff")
+    check("staff-page", s.status_code == 200 and "Approve" in s.text and "no staff login" in s.text, s.status_code)
+    f = client.get("/api/facts").json()
+    check("facts-labels", any(x["id"] == "parking" for x in f["facts"]), f)
+
+
+def test_cap_notice():
+    from unittest.mock import patch as mock_patch
+
+    client = fresh_client()
+    with mock_patch.object(llm, "_client", side_effect=llm.ModelError("daily model call cap reached")):
+        body = client.post("/api/chat", json={"message": "Is parking free?"}).json()
+    check("cap-notice", body["route"] == "human" and "Daily model limit" in (body["notice"] or ""), body)
+    with mock_patch.object(llm, "_client", side_effect=llm.ModelError("down")):
+        body = client.post("/api/chat", json={"message": "Is parking free?"}).json()
+    check("no-notice-otherwise", body["notice"] is None, body)
+
+
 def test_sheet_word_one_passes():
     client = fresh_client()
     clf = {"route": "fact", "facts": ["parking"], "request_type": None, "room": None, "time": None}
@@ -357,5 +380,7 @@ if __name__ == "__main__":
     test_retry_then_success()
     test_retry_exhausted_raises()
     test_non_retryable_fails_fast()
+    test_pages_and_facts()
+    test_cap_notice()
     test_sheet_word_one_passes()
     print(f"\n{len(PASS)} checks passed.")

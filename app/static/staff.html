@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Staff screen: front desk helper</title>
+<style>
+  body { font-family: system-ui, -apple-system, sans-serif; max-width: 760px; margin: 0 auto; padding: 12px; background: #f4f4f2; color: #222; }
+  h1 { font-size: 20px; margin: 8px 0 0; }
+  h2 { font-size: 17px; margin: 24px 0 8px; border-bottom: 1px solid #ccc; padding-bottom: 4px; }
+  .note { font-size: 14px; color: #555; }
+  .card { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 12px; margin: 8px 0; font-size: 14px; }
+  .card.pending { border-left: 5px solid #e6a200; }
+  .card.approved { border-left: 5px solid #2e7d32; }
+  .card.declined { border-left: 5px solid #b3261e; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
+  button { padding: 10px 18px; font-size: 14px; border-radius: 8px; border: 1px solid #888; background: #fff; cursor: pointer; }
+  button.approve { background: #2e7d32; color: #fff; border: 0; }
+  button.decline { background: #b3261e; color: #fff; border: 0; }
+  button:disabled { opacity: 0.45; cursor: default; }
+  .badge { font-size: 12px; padding: 2px 10px; border-radius: 10px; background: #eee; }
+  .chat { background: #fafafa; border: 1px solid #e2e2e2; border-radius: 6px; padding: 8px; margin-top: 8px; max-height: 220px; overflow-y: auto; }
+  .chat p { margin: 4px 0; font-size: 13px; }
+  .meta { font-size: 12px; color: #666; }
+  footer { font-size: 12px; color: #666; margin: 24px 0 8px; }
+</style>
+</head>
+<body>
+<h1>Staff screen</h1>
+<p class="note">Demo build: no staff login. Anyone with this link can approve requests.</p>
+<p><a href="/">Back to guest chat</a> <button id="refresh" type="button">Refresh now</button></p>
+<h2>Requests</h2>
+<div id="requests"></div>
+<h2>Needs a human</h2>
+<div id="queue"></div>
+<h2>Blocked replies</h2>
+<div id="blocked"></div>
+<footer>SAMPLE DATA, invented hotel, no real guest data.</footer>
+<script>
+  function el(tag, text, cls) {
+    var d = document.createElement(tag);
+    if (cls) d.className = cls;
+    d.textContent = text;
+    return d;
+  }
+
+  function fmtTime(ts) {
+    return new Date(ts * 1000).toLocaleString();
+  }
+
+  function load() {
+    Promise.all([
+      fetch('/api/staff/requests').then(function (r) { return r.json(); }),
+      fetch('/api/staff/queue').then(function (r) { return r.json(); }),
+      fetch('/api/staff/blocked').then(function (r) { return r.json(); })
+    ]).then(function (parts) {
+      renderRequests(parts[0].requests);
+      renderQueue(parts[1].queue);
+      renderBlocked(parts[2].blocked);
+    });
+  }
+
+  function renderRequests(cards) {
+    var box = document.getElementById('requests');
+    box.innerHTML = '';
+    if (!cards.length) box.appendChild(el('p', 'No requests.', 'note'));
+    cards.forEach(function (c) {
+      var d = el('div', '', 'card ' + c.status);
+      var title = (c.type === 'early_checkin' ? 'Early check-in' : 'Late checkout');
+      title += ' / room ' + (c.room || 'not given') + ' / ' + (c.time || 'no time given');
+      d.appendChild(el('p', title));
+      var meta = el('p', c.status + ' / ' + c.id + ' / chat ' + c.session_id, 'meta');
+      d.appendChild(meta);
+      var row = el('div', '', 'row');
+      var ok = el('button', 'Approve', 'approve');
+      var no = el('button', 'Decline', 'decline');
+      if (c.status !== 'pending') { ok.disabled = true; no.disabled = true; }
+      ok.onclick = function () { decide(c.id, 'approved'); };
+      no.onclick = function () { decide(c.id, 'declined'); };
+      row.appendChild(ok);
+      row.appendChild(no);
+      d.appendChild(row);
+      box.appendChild(d);
+    });
+  }
+
+  function decide(id, decision) {
+    fetch('/api/staff/requests/' + id + '/decision', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ decision: decision })
+    }).then(load);
+  }
+
+  function renderQueue(entries) {
+    var box = document.getElementById('queue');
+    box.innerHTML = '';
+    if (!entries.length) box.appendChild(el('p', 'Queue is clear.', 'note'));
+    entries.forEach(function (e) {
+      var d = el('div', '', 'card');
+      d.appendChild(el('p', 'Reason: ' + e.reason + ' / ' + fmtTime(e.created_at), 'meta'));
+      var chat = el('div', '', 'chat');
+      e.chat.forEach(function (m) {
+        chat.appendChild(el('p', m.role + ': ' + m.text));
+      });
+      d.appendChild(chat);
+      var row = el('div', '', 'row');
+      var b = el('button', 'Mark resolved');
+      b.onclick = function () {
+        fetch('/api/staff/queue/' + e.id + '/resolve', { method: 'POST' }).then(load);
+      };
+      row.appendChild(b);
+      d.appendChild(row);
+      box.appendChild(d);
+    });
+  }
+
+  function renderBlocked(items) {
+    var box = document.getElementById('blocked');
+    box.innerHTML = '';
+    if (!items.length) box.appendChild(el('p', 'Nothing blocked.', 'note'));
+    items.slice().reverse().forEach(function (b) {
+      var d = el('div', '', 'card');
+      d.appendChild(el('p', b.reason + ' / chat ' + b.session_id, 'meta'));
+      d.appendChild(el('p', b.reply));
+      box.appendChild(d);
+    });
+  }
+
+  document.getElementById('refresh').onclick = load;
+  load();
+  setInterval(load, 5000);
+</script>
+</body>
+</html>
