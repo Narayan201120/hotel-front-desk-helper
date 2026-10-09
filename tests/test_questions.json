@@ -163,9 +163,9 @@
     "id": "n24",
     "category": "normal",
     "question": "Checkout is at 11, right? Can I stay until 12:30? Room 105.",
-    "expected_route": "request",
-    "expected_facts": ["late_checkout"],
-    "note": "Late checkout request with room and time. The 11:00 AM mention is covered by the late_checkout fact values. Staff card, never promise."
+    "expected_route": "multi",
+    "expected_facts": ["checkout", "late_checkout"],
+    "note": "Confirms the 11:00 AM checkout fact, then asks for late checkout. Fact answer plus staff card, never promise."
   },
   {
     "id": "n25",
