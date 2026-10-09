@@ -55,7 +55,11 @@ def test_invented_fee_blocked_and_logged():
         llm, "phrase", return_value="Parking costs $40 per night."
     ):
         body = client.post("/api/chat", json={"message": "Is parking free?"}).json()
-    check("invented-fee-route", body["route"] == "human", body)
+    check(
+        "invented-fee-verbatim",
+        body["route"] == "fact" and body["reply"] == main.sheet.answer_text("parking"),
+        body,
+    )
     blocked = client.get("/api/staff/blocked").json()["blocked"]
     check(
         "invented-fee-logged",
@@ -71,7 +75,11 @@ def test_banned_word_blocked():
         llm, "phrase", return_value="Your checkout is approved for 1pm."
     ):
         body = client.post("/api/chat", json={"message": "Can I check out late?"}).json()
-    check("banned-word-route", body["route"] == "human", body)
+    check(
+        "banned-word-verbatim",
+        body["route"] == "fact" and body["reply"] == main.sheet.answer_text("checkout"),
+        body,
+    )
     blocked = client.get("/api/staff/blocked").json()["blocked"]
     check("banned-word-logged", blocked[0]["reason"] == "banned-word:approved", blocked)
 
@@ -83,7 +91,11 @@ def test_guest_number_blocked_in_fact_answer():
         llm, "phrase", return_value="Parking for room 214 is free."
     ):
         body = client.post("/api/chat", json={"message": "Room 214, is parking free?"}).json()
-    check("guest-number-fact-blocked", body["route"] == "human", body)
+    check(
+        "guest-number-fact-verbatim",
+        body["route"] == "fact" and body["reply"] == main.sheet.answer_text("parking"),
+        body,
+    )
 
 
 def test_confirmation_word_not_banned():
@@ -164,7 +176,11 @@ def test_word_number_fee_blocked():
         llm, "phrase", return_value="The pet fee is twenty dollars per night."
     ):
         body = client.post("/api/chat", json={"message": "How much is the pet fee?"}).json()
-    check("word-fee-blocked", body["route"] == "human", body)
+    check(
+        "word-fee-verbatim",
+        body["route"] == "fact" and body["reply"] == main.sheet.answer_text("pets"),
+        body,
+    )
     blocked = client.get("/api/staff/blocked").json()["blocked"]
     check("word-fee-logged", blocked[0]["reason"] == "unknown-number-time-fee:twenty", blocked)
 
@@ -187,7 +203,11 @@ def test_bare_word_time_blocked():
         llm, "phrase", return_value="Check-out is at eleven."
     ):
         body = client.post("/api/chat", json={"message": "What time is checkout?"}).json()
-    check("bare-word-time-blocked", body["route"] == "human", body)
+    check(
+        "bare-word-time-verbatim",
+        body["route"] == "fact" and body["reply"] == main.sheet.answer_text("checkout"),
+        body,
+    )
 
 
 def test_noon_blocked():
@@ -197,7 +217,11 @@ def test_noon_blocked():
         llm, "phrase", return_value="Breakfast runs until noon."
     ):
         body = client.post("/api/chat", json={"message": "When does breakfast end?"}).json()
-    check("noon-blocked", body["route"] == "human", body)
+    check(
+        "noon-verbatim",
+        body["route"] == "fact" and body["reply"] == main.sheet.answer_text("breakfast"),
+        body,
+    )
     blocked = client.get("/api/staff/blocked").json()["blocked"]
     check("noon-logged", blocked[0]["reason"] == "unknown-number-time-fee:noon", blocked)
 
