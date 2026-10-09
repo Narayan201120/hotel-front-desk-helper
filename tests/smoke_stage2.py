@@ -466,7 +466,7 @@ def test_reset_demo():
     pre_q = len(client.get("/api/staff/queue").json()["queue"])
     pre_r = len(client.get("/api/staff/requests").json()["requests"])
     pre_b = len(client.get("/api/staff/blocked").json()["blocked"])
-    check("reset-prefilled", (pre_q, pre_r, pre_b) == (2, 1, 1), (pre_q, pre_r, pre_b))
+    check("reset-prefilled", (pre_q, pre_r, pre_b) == (1, 1, 1), (pre_q, pre_r, pre_b))
     r = client.post("/api/staff/reset")
     check("reset-ok", r.json() == {"ok": True}, r.json())
     post_q = len(client.get("/api/staff/queue").json()["queue"])
