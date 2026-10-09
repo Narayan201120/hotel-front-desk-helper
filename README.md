@@ -59,7 +59,12 @@ degraded ack 0, mismatch 0, inconclusive 0. The guardrail never fired
 on real model output in this run. Every mismatch from earlier runs
 (n05 number echo, n23 "booked" ban, t02 fee-as-request, t13 dropped
 parking part, t07 sentinel under injection framing) was fixed and the
-fixes above re-verified in this run.
+fixes above re-verified in this run. n24 is the only expected value ever
+changed: the guest asks a checkout confirmation and a late checkout
+request in one message, so multi with both facts is the honest label.
+All 40 questions were used to guide fixes; the 10 held-out questions
+were written before running and never used for fixes. These results
+apply to openai/gpt-oss-120b on 2026-10-09 only.
 
 ## Held-out check (2026-10-09, same model)
 
