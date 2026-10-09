@@ -1,0 +1,20 @@
+# Render Blueprint: single persistent web instance.
+# No secrets here. GEMINI_API_KEY and GEMINI_MODEL are set in the
+# Render dashboard (marked sync: false) and never committed.
+services:
+  - type: web
+    name: hotel-front-desk-helper
+    runtime: python
+    plan: starter
+    numInstances: 1
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        sync: false
+      - key: DAILY_MODEL_CALL_CAP
+        value: "500"
+      - key: RATE_LIMIT_PER_MINUTE
+        value: "60"
