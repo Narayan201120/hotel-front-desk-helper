@@ -9,6 +9,7 @@
   header h1 { font-size: 20px; margin: 8px 0 0; }
   header p { font-size: 14px; color: #555; margin: 4px 0 12px; }
   #banner { background: #fff3cd; border: 1px solid #e6c200; padding: 10px 12px; border-radius: 8px; margin: 8px 0; font-size: 14px; }
+  #mode { background: #e8eefc; border: 1px solid #1a56db; padding: 10px 12px; border-radius: 8px; margin: 8px 0; font-size: 14px; }
   #log { min-height: 200px; }
   .msg { padding: 10px 12px; border-radius: 12px; margin: 8px 0; max-width: 88%; font-size: 15px; line-height: 1.4; overflow-wrap: break-word; }
   .guest { background: #1a56db; color: #fff; margin-left: auto; }
@@ -30,6 +31,7 @@
   <p>Night front desk chat. A staff member sees every message.</p>
 </header>
 <div id="banner" hidden></div>
+<div id="mode" hidden>Recorded demo: no key configured. Chip answers are recorded runs, not live.</div>
 <main id="log" aria-live="polite"></main>
 <div id="chips"></div>
 <form id="composer">
@@ -48,6 +50,7 @@
   var sessionId = localStorage.getItem('hfd_session') || null;
   var rendered = 0;
   var labels = {};
+  var liveMode = true;
   var CHIPS = [
     "Is parking free at your hotel?",
     "How much is the pet fee per night?",
@@ -60,6 +63,11 @@
 
   fetch('/api/facts').then(function (r) { return r.json(); }).then(function (d) {
     d.facts.forEach(function (f) { labels[f.id] = f.label; });
+  });
+
+  fetch('/api/status').then(function (r) { return r.json(); }).then(function (s) {
+    liveMode = !!s.live;
+    if (!liveMode) document.getElementById('mode').hidden = false;
   });
 
   var chipBox = document.getElementById('chips');
@@ -130,7 +138,8 @@
     if (facts.length) {
       var s = document.createElement('div');
       s.className = 'src';
-      s.textContent = 'Shown from: ' + facts.map(function (f) { return labels[f] || f; }).join(', ');
+      var shown = 'Shown from: ' + facts.map(function (f) { return labels[f] || f; }).join(', ');
+      s.textContent = liveMode ? shown : 'Recorded run, not live. ' + shown;
       d.appendChild(s);
     }
     log.appendChild(d);

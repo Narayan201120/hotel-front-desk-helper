@@ -543,6 +543,47 @@ def test_fee_with_price_answers():
     check("pet-fee-answers", body["route"] == "fact" and "$25" in body["reply"], body)
 
 
+def test_recorded_mode_without_key():
+    import os
+    from unittest.mock import patch as mock_patch
+
+    client = fresh_client()
+    with mock_patch.dict(os.environ, {}, clear=True):
+        status = client.get("/api/status").json()
+        check("recorded-offline", status["live"] is False, status)
+        chip = client.post("/api/chat", json={"message": "Is parking free at your hotel?"}).json()
+        check("recorded-chip", chip["route"] == "replay" and "free" in chip["reply"].lower(), chip)
+        free = client.post("/api/chat", json={"message": "Something entirely new"}).json()
+        check("recorded-freetext", free["route"] == "replay" and "Add a key" in free["reply"], free)
+        q = client.get("/api/staff/queue").json()["queue"]
+        check("recorded-no-queue", q == [], q)
+
+
+def test_key_never_leaks():
+    import json as jsonlib
+    import os
+    from unittest.mock import patch as mock_patch
+
+    fake = "gsk_test_fake_key_abcdef123456"
+    client = fresh_client()
+    clf = {"route": "fact", "facts": ["parking"], "request_type": None, "room": None, "time": None}
+    with mock_patch.dict(os.environ, {"GROQ_API_KEY": fake}), patch.object(
+        llm, "classify", return_value=clf
+    ), patch.object(llm, "phrase", return_value="Free parking."):
+        body = client.post("/api/chat", json={"message": "parking?"}).json()
+        surfaces = [
+            body["reply"],
+            jsonlib.dumps(client.get("/api/staff/queue").json()),
+            jsonlib.dumps(client.get("/api/staff/blocked").json()),
+            jsonlib.dumps(client.get("/api/staff/requests").json()),
+            jsonlib.dumps(client.get("/api/chat/" + body["session_id"]).json()),
+            jsonlib.dumps(client.get("/api/status").json()),
+            jsonlib.dumps(client.get("/api/recorded").json()),
+            jsonlib.dumps(main.store.sessions, default=str),
+        ]
+    check("key-never-leaks", all(fake not in s for s in surfaces), "")
+
+
 def test_sheet_word_one_passes():
     client = fresh_client()
     clf = {"route": "fact", "facts": ["parking"], "request_type": None, "room": None, "time": None}
@@ -585,5 +626,7 @@ if __name__ == "__main__":
     test_pages_and_facts()
     test_cap_notice()
     test_reset_demo()
+    test_recorded_mode_without_key()
+    test_key_never_leaks()
     test_sheet_word_one_passes()
     print(f"\n{len(PASS)} checks passed.")

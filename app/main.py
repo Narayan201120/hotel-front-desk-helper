@@ -1,6 +1,7 @@
 """FastAPI app: guest chat API plus staff request queue and human queue."""
 from __future__ import annotations
 
+import json as jsonlib
 import os
 import time
 from collections import deque
@@ -11,12 +12,15 @@ from pydantic import BaseModel, Field
 
 from app import service
 from app.facts import FactSheet
+from app.llm import DEFAULT_MODEL
 from app.store import Store
 
 app = FastAPI(title="Hotel front desk helper")
 store = Store()
 sheet = FactSheet()
 STATIC = Path(__file__).parent / "static"
+RECORDED_PATH = Path(__file__).parent.parent / "data" / "recorded_runs.json"
+FREE_TEXT_NO_KEY = "Add a key or run locally to try your own question."
 
 # In-memory per-IP rate limit. Single persistent process only: it resets on
 # restart and does not share across workers. See README Assumptions.
@@ -77,9 +81,54 @@ def fact_labels() -> dict:
     return {"facts": [{"id": fid, "label": f["label"]} for fid, f in sheet.facts.items()]}
 
 
+def _live() -> bool:
+    return bool(os.environ.get("GROQ_API_KEY"))
+
+
+def _recorded() -> dict:
+    try:
+        return jsonlib.loads(RECORDED_PATH.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+
+
+@app.get("/api/status")
+def status() -> dict:
+    return {"live": _live(), "model": os.environ.get("GROQ_MODEL") or DEFAULT_MODEL}
+
+
+@app.get("/api/recorded")
+def recorded() -> dict:
+    return {"recorded": _recorded()}
+
+
+def _recorded_reply(session_id: str | None, message: str) -> dict:
+    # No key configured: chips replay saved eval responses, labeled as
+    # replays, and free text gets a canned pointer. Nothing is queued.
+    session = store.get_session(session_id)
+    store.add_message(session, "guest", message)
+    hit = _recorded().get((message or "").strip())
+    if hit:
+        reply, facts = hit["reply"], hit.get("facts_cited", [])
+    else:
+        reply, facts = FREE_TEXT_NO_KEY, []
+    store.add_message(session, "assistant", reply, facts)
+    return {
+        "session_id": session["id"],
+        "route": "replay",
+        "reply": reply,
+        "facts_cited": facts,
+        "request_id": None,
+        "request_status": None,
+        "notice": None,
+    }
+
+
 @app.post("/api/chat")
 def chat(body: ChatIn, request: Request) -> dict:
     _check_rate_limit(request)
+    if not _live():
+        return _recorded_reply(body.session_id, body.message)
     return service.handle_message(store, sheet, body.message, body.session_id)
 
 
