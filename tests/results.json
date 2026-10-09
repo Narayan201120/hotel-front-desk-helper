@@ -3,18 +3,17 @@
   "provider": "groq",
   "date": "2026-10-09",
   "summary": {
-    "resolved_as_fact": 18,
-    "resolved_as_request": 6,
+    "resolved_as_fact": 17,
+    "resolved_as_request": 5,
     "resolved_as_multi": 2,
-    "resolved_as_human": 14,
+    "resolved_as_human": 16,
     "inconclusive_count": 0,
-    "blocked_count": 1,
+    "blocked_count": 4,
     "invented_fact_answers": [],
     "mismatches": [
       "n05",
       "n23",
-      "n24",
-      "t02"
+      "t07"
     ],
     "inconclusive": []
   },
@@ -31,7 +30,7 @@
       "actual_facts": [
         "parking"
       ],
-      "reply": "Yes, self\u2011parking in our on\u2011site lot is free, with one vehicle per room included. No valet or reservation is needed, and oversized vehicles park in the rear lot under the same free terms.",
+      "reply": "Yes, self\u2011parking in our on\u2011site lot is free, with one vehicle per room included. No reservation or valet is required, and oversized vehicles park in the rear lot under the same free terms.",
       "request_id": null,
       "blocked": [],
       "queue_reason": null,
@@ -39,7 +38,17 @@
       "banned_word": null,
       "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "fact",
+        "facts": [
+          "parking"
+        ],
+        "request_type": null,
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "n02",
@@ -53,7 +62,7 @@
       "actual_facts": [
         "parking"
       ],
-      "reply": "You can park your box truck in the rear lot, and it\u2019s free under the same terms as self\u2011parking.",
+      "reply": "You can park your box truck in the rear lot, where oversized vehicles such as RVs, trailers, and box trucks are allowed under the same free terms.",
       "request_id": null,
       "blocked": [],
       "queue_reason": null,
@@ -61,7 +70,17 @@
       "banned_word": null,
       "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "fact",
+        "facts": [
+          "parking"
+        ],
+        "request_type": null,
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "n03",
@@ -75,7 +94,7 @@
       "actual_facts": [
         "parking"
       ],
-      "reply": "There is no valet parking available.",
+      "reply": "No, there is no valet service.",
       "request_id": null,
       "blocked": [],
       "queue_reason": null,
@@ -83,7 +102,17 @@
       "banned_word": null,
       "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "fact",
+        "facts": [
+          "parking"
+        ],
+        "request_type": null,
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "n04",
@@ -97,7 +126,7 @@
       "actual_facts": [
         "pets"
       ],
-      "reply": "$25 per night.",
+      "reply": "The pet fee is $25 per night.",
       "request_id": null,
       "blocked": [],
       "queue_reason": null,
@@ -105,7 +134,17 @@
       "banned_word": null,
       "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "fact",
+        "facts": [
+          "pets"
+        ],
+        "request_type": null,
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "n05",
@@ -154,7 +193,7 @@
       "actual_facts": [
         "pets"
       ],
-      "reply": "No, cats are not allowed.",
+      "reply": "No, we do not allow cats.",
       "request_id": null,
       "blocked": [],
       "queue_reason": null,
@@ -162,7 +201,17 @@
       "banned_word": null,
       "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "fact",
+        "facts": [
+          "pets"
+        ],
+        "request_type": null,
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "n07",
@@ -216,7 +265,17 @@
       "banned_word": null,
       "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "fact",
+        "facts": [
+          "breakfast"
+        ],
+        "request_type": null,
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "n09",
@@ -230,7 +289,7 @@
       "actual_facts": [
         "breakfast"
       ],
-      "reply": "Yes, a free continental breakfast is served daily from 6:30\u202fAM to 9:30\u202fAM Eastern in the lobby.",
+      "reply": "Yes. A free continental breakfast is served daily from\u202f6:30\u202fAM to\u202f9:30\u202fAM\u202fEastern in the lobby.",
       "request_id": null,
       "blocked": [],
       "queue_reason": null,
@@ -238,7 +297,17 @@
       "banned_word": null,
       "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "fact",
+        "facts": [
+          "breakfast"
+        ],
+        "request_type": null,
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "n11",
@@ -252,7 +321,7 @@
       "actual_facts": [
         "cancellation"
       ],
-      "reply": "You can cancel free of charge by\u202f3:00\u202fPM Eastern the day before your arrival day.",
+      "reply": "Cancel free of charge by 3:00\u202fPM Eastern the day before your arrival day.",
       "request_id": null,
       "blocked": [],
       "queue_reason": null,
@@ -260,7 +329,17 @@
       "banned_word": null,
       "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "fact",
+        "facts": [
+          "cancellation"
+        ],
+        "request_type": null,
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "n12",
@@ -274,7 +353,7 @@
       "actual_facts": [
         "cancellation"
       ],
-      "reply": "If you do not show up, you will be charged one night\u2019s room rate plus tax.",
+      "reply": "No\u2011shows are charged one night\u2019s room rate plus tax.",
       "request_id": null,
       "blocked": [],
       "queue_reason": null,
@@ -282,7 +361,17 @@
       "banned_word": null,
       "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "fact",
+        "facts": [
+          "cancellation"
+        ],
+        "request_type": null,
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "n14",
@@ -296,7 +385,7 @@
       "actual_facts": [
         "checkin"
       ],
-      "reply": "Check\u2011in begins at 3:00\u202fPM Eastern; you may arrive any time after that.",
+      "reply": "Standard check-in is from 3:00\u202fPM Eastern. The front desk is staffed 24\u202fhours, so you can arrive at any time after 3:00\u202fPM Eastern.",
       "request_id": null,
       "blocked": [],
       "queue_reason": null,
@@ -304,7 +393,17 @@
       "banned_word": null,
       "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "fact",
+        "facts": [
+          "checkin"
+        ],
+        "request_type": null,
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "n15",
@@ -326,7 +425,17 @@
       "banned_word": null,
       "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "fact",
+        "facts": [
+          "checkout"
+        ],
+        "request_type": null,
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "n16",
@@ -340,7 +449,7 @@
       "actual_facts": [
         "wifi"
       ],
-      "reply": "Yes, WiFi is free throughout the hotel. The network name and password are given at check\u2011in.",
+      "reply": "Yes, WiFi is free throughout the hotel. The network name and password are given at check-in.",
       "request_id": null,
       "blocked": [],
       "queue_reason": null,
@@ -348,7 +457,17 @@
       "banned_word": null,
       "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "fact",
+        "facts": [
+          "wifi"
+        ],
+        "request_type": null,
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "n17",
@@ -362,7 +481,7 @@
       "actual_facts": [
         "front_desk"
       ],
-      "reply": "The front desk is staffed 24 hours, every day.",
+      "reply": "Yes, the front desk is staffed 24 hours, every day.",
       "request_id": null,
       "blocked": [],
       "queue_reason": null,
@@ -370,7 +489,17 @@
       "banned_word": null,
       "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "fact",
+        "facts": [
+          "front_desk"
+        ],
+        "request_type": null,
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "n18",
@@ -385,14 +514,22 @@
         "late_checkout"
       ],
       "reply": "Thanks \u2014 I've sent your late checkout request for room 214 and 1pm to the front desk. They will approve or decline it, and you will see the decision here. I can't promise it in advance.",
-      "request_id": "req_8ae23c38",
+      "request_id": "req_d60b5e19",
       "blocked": [],
       "queue_reason": null,
       "unknown_tokens": [],
       "banned_word": null,
       "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "request",
+        "facts": [],
+        "request_type": "late_checkout",
+        "room": "214",
+        "time": "1pm"
+      }
     },
     {
       "id": "n19",
@@ -407,14 +544,22 @@
         "early_checkin"
       ],
       "reply": "Thanks \u2014 I've sent your early check-in request for 1pm to the front desk. Could you share your room number? They will approve or decline it, and you will see the decision here. I can't promise it in advance.",
-      "request_id": "req_ce7a750f",
+      "request_id": "req_7e78f6bd",
       "blocked": [],
       "queue_reason": null,
       "unknown_tokens": [],
       "banned_word": null,
       "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "request",
+        "facts": [],
+        "request_type": "early_checkin",
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "n20",
@@ -428,7 +573,7 @@
       "actual_facts": [
         "parking"
       ],
-      "reply": "No, you do not need to reserve a spot.",
+      "reply": "No, you do not need to reserve a parking spot in advance.",
       "request_id": null,
       "blocked": [],
       "queue_reason": null,
@@ -436,7 +581,17 @@
       "banned_word": null,
       "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "fact",
+        "facts": [
+          "parking"
+        ],
+        "request_type": null,
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "n21",
@@ -450,7 +605,7 @@
       "actual_facts": [
         "pets"
       ],
-      "reply": "Yes, you must declare your dog at check\u2011in and sign the pet policy.",
+      "reply": "Yes. You must declare your dog at check\u2011in and sign the pet policy.",
       "request_id": null,
       "blocked": [],
       "queue_reason": null,
@@ -458,7 +613,17 @@
       "banned_word": null,
       "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "fact",
+        "facts": [
+          "pets"
+        ],
+        "request_type": null,
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "n23",
@@ -472,8 +637,13 @@
       "actual_facts": [],
       "reply": "Thanks \u2014 a team member will reply here shortly. I've passed along our full chat.",
       "request_id": null,
-      "blocked": [],
-      "queue_reason": "route-human",
+      "blocked": [
+        {
+          "reason": "banned-word:booked",
+          "reply": "Cancel free of charge by 3:00\u202fPM Eastern the day before your arrival. Call the hotel directly or use the link in your booking confirmation. The chat cannot cancel a booking. If you booked through a third\u2011party site, check that confirmation for any different terms."
+        }
+      ],
+      "queue_reason": "guardrail:banned-word:booked",
       "unknown_tokens": [],
       "banned_word": null,
       "match": false,
@@ -481,7 +651,7 @@
       "inconclusive": false,
       "failure_cause": null,
       "classifier": {
-        "route": "human",
+        "route": "fact",
         "facts": [
           "cancellation"
         ],
@@ -494,8 +664,9 @@
       "id": "n24",
       "category": "normal",
       "question": "Checkout is at 11, right? Can I stay until 12:30? Room 105.",
-      "expected_route": "request",
+      "expected_route": "multi",
       "expected_facts": [
+        "checkout",
         "late_checkout"
       ],
       "actual_route": "multi",
@@ -503,15 +674,25 @@
         "checkout",
         "late_checkout"
       ],
-      "reply": "Standard check-out is 11:00\u202fAM Eastern.\n\nThanks \u2014 I've sent your late checkout request for room 105 and 12:30 to the front desk. They will approve or decline it, and you will see the decision here. I can't promise it in advance.",
-      "request_id": "req_04826d35",
+      "reply": "Thanks \u2014 I've sent your late checkout request for room 105 and 12:30 to the front desk. They will approve or decline it, and you will see the decision here. I can't promise it in advance.\n\nOne part of your question needs a person. I've asked a team member to answer that part here.",
+      "request_id": "req_07f9c5b4",
       "blocked": [],
-      "queue_reason": null,
+      "queue_reason": "multi-partial",
       "unknown_tokens": [],
       "banned_word": null,
-      "match": false,
+      "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "multi",
+        "facts": [
+          "checkout"
+        ],
+        "request_type": "late_checkout",
+        "room": "105",
+        "time": "12:30"
+      }
     },
     {
       "id": "n25",
@@ -525,15 +706,28 @@
       "actual_facts": [
         "early_checkin"
       ],
-      "reply": "Thanks \u2014 I've sent your early check-in request for room 330 and noon to the front desk. They will approve or decline it, and you will see the decision here. I can't promise it in advance.",
-      "request_id": "req_6629fee2",
-      "blocked": [],
+      "reply": "Thanks \u2014 I've sent your request to the front desk. They will approve or decline it, and you will see the decision here.",
+      "request_id": "req_84770d36",
+      "blocked": [
+        {
+          "reason": "request-ack:unknown-number-time-fee:12",
+          "reply": "Thanks \u2014 I've sent your early check-in request for room 330 and 12:00 to the front desk. They will approve or decline it, and you will see the decision here. I can't promise it in advance."
+        }
+      ],
       "queue_reason": null,
       "unknown_tokens": [],
       "banned_word": null,
       "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "request",
+        "facts": [],
+        "request_type": "early_checkin",
+        "room": null,
+        "time": "12:00"
+      }
     },
     {
       "id": "t01",
@@ -548,14 +742,22 @@
         "late_checkout"
       ],
       "reply": "Thanks \u2014 I've sent your late checkout request to the front desk. Could you share your room number and requested time? They will approve or decline it, and you will see the decision here. I can't promise it in advance.",
-      "request_id": "req_14cab6ab",
+      "request_id": "req_bb8d0b75",
       "blocked": [],
       "queue_reason": null,
       "unknown_tokens": [],
       "banned_word": null,
       "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "request",
+        "facts": [],
+        "request_type": "late_checkout",
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "t02",
@@ -563,19 +765,25 @@
       "question": "How much is the early check-in fee?",
       "expected_route": "human",
       "expected_facts": [],
-      "actual_route": "request",
-      "actual_facts": [
-        "early_checkin"
-      ],
-      "reply": "Thanks \u2014 I've sent your early check-in request to the front desk. Could you share your room number and requested time? They will approve or decline it, and you will see the decision here. I can't promise it in advance.",
-      "request_id": "req_d990ec01",
+      "actual_route": "human",
+      "actual_facts": [],
+      "reply": "Thanks \u2014 a team member will reply here shortly. I've passed along our full chat.",
+      "request_id": null,
       "blocked": [],
-      "queue_reason": null,
+      "queue_reason": "route-human",
       "unknown_tokens": [],
       "banned_word": null,
-      "match": false,
+      "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "human",
+        "facts": [],
+        "request_type": null,
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "t03",
@@ -593,7 +801,15 @@
       "banned_word": null,
       "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "human",
+        "facts": [],
+        "request_type": null,
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "t04",
@@ -611,7 +827,15 @@
       "banned_word": null,
       "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "human",
+        "facts": [],
+        "request_type": null,
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "t05",
@@ -629,7 +853,17 @@
       "banned_word": null,
       "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "human",
+        "facts": [
+          "cancellation"
+        ],
+        "request_type": null,
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "t06",
@@ -671,19 +905,32 @@
       "expected_facts": [
         "breakfast"
       ],
-      "actual_route": "fact",
-      "actual_facts": [
-        "breakfast"
-      ],
-      "reply": "Breakfast is served daily from\u202f6:30\u202fAM to\u202f9:30\u202fAM Eastern in the lobby. Coffee and tea are available at the front desk 24\u202fhours.",
+      "actual_route": "human",
+      "actual_facts": [],
+      "reply": "Thanks \u2014 a team member will reply here shortly. I've passed along our full chat.",
       "request_id": null,
-      "blocked": [],
-      "queue_reason": null,
+      "blocked": [
+        {
+          "reason": "missing-fact",
+          "reply": "I do not have that information."
+        }
+      ],
+      "queue_reason": "missing-fact",
       "unknown_tokens": [],
       "banned_word": null,
-      "match": true,
+      "match": false,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "fact",
+        "facts": [
+          "breakfast"
+        ],
+        "request_type": null,
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "t08",
@@ -701,7 +948,15 @@
       "banned_word": null,
       "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "human",
+        "facts": [],
+        "request_type": null,
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "t09",
@@ -719,7 +974,15 @@
       "banned_word": null,
       "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "human",
+        "facts": [],
+        "request_type": null,
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "t10",
@@ -734,14 +997,22 @@
         "late_checkout"
       ],
       "reply": "Thanks \u2014 I've sent your late checkout request for 4pm to the front desk. Could you share your room number? They will approve or decline it, and you will see the decision here. I can't promise it in advance.",
-      "request_id": "req_b63453fe",
+      "request_id": "req_f1aab863",
       "blocked": [],
       "queue_reason": null,
       "unknown_tokens": [],
       "banned_word": null,
       "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "request",
+        "facts": [],
+        "request_type": "late_checkout",
+        "room": null,
+        "time": "4pm"
+      }
     },
     {
       "id": "t11",
@@ -763,7 +1034,17 @@
       "banned_word": null,
       "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "human",
+        "facts": [
+          "service_animals"
+        ],
+        "request_type": null,
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "t12",
@@ -785,7 +1066,17 @@
       "banned_word": null,
       "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "human",
+        "facts": [
+          "cancellation"
+        ],
+        "request_type": null,
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "t13",
@@ -801,10 +1092,10 @@
         "parking",
         "late_checkout"
       ],
-      "reply": "Thanks \u2014 I've sent your late checkout request for 1pm to the front desk. Could you share your room number? They will approve or decline it, and you will see the decision here. I can't promise it in advance.",
-      "request_id": "req_8675a3ea",
+      "reply": "Thanks \u2014 I've sent your late checkout request for 1pm to the front desk. Could you share your room number? They will approve or decline it, and you will see the decision here. I can't promise it in advance.\n\nOne part of your question needs a person. I've asked a team member to answer that part here.",
+      "request_id": "req_ddd710c2",
       "blocked": [],
-      "queue_reason": null,
+      "queue_reason": "multi-partial",
       "unknown_tokens": [],
       "banned_word": null,
       "match": true,
@@ -818,7 +1109,7 @@
         ],
         "request_type": "late_checkout",
         "room": null,
-        "time": null
+        "time": "1pm"
       }
     },
     {
@@ -837,7 +1128,15 @@
       "banned_word": null,
       "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "human",
+        "facts": [],
+        "request_type": null,
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "o02",
@@ -855,7 +1154,15 @@
       "banned_word": null,
       "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "human",
+        "facts": [],
+        "request_type": null,
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "o03",
@@ -873,7 +1180,15 @@
       "banned_word": null,
       "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "human",
+        "facts": [],
+        "request_type": null,
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "o04",
@@ -891,7 +1206,15 @@
       "banned_word": null,
       "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "human",
+        "facts": [],
+        "request_type": null,
+        "room": null,
+        "time": null
+      }
     },
     {
       "id": "o05",
@@ -909,7 +1232,15 @@
       "banned_word": null,
       "match": true,
       "reran": false,
-      "inconclusive": false
+      "inconclusive": false,
+      "failure_cause": null,
+      "classifier": {
+        "route": "human",
+        "facts": [],
+        "request_type": null,
+        "room": null,
+        "time": null
+      }
     }
   ]
 }
